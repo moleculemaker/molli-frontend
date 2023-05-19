@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  clean-frontend:
-    image: moleculemaker/clean-frontend:staging
-    container_name: clean-frontend
+  molli-frontend:
+    image: moleculemaker/molli-frontend:staging
+    container_name: molli-frontend
     build:
       context: .
     env_file: .env
@@ -13,4 +13,4 @@ services:
 
     volumes:
      - ./assets/config/:/usr/share/nginx/html/assets/config:ro
-     #- ./dist/clean:/usr/share/nginx/html:ro
+     #- ./dist/molli:/usr/share/nginx/html:ro

@@ -4,23 +4,23 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}
   labels:
-    app: clean-frontend
+    app: molli-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: clean-frontend
+      app: molli-frontend
   template:
     metadata:
       labels:
-        app: clean-frontend
+        app: molli-frontend
     spec:
       containers:
-        - name: clean-frontend
+        - name: molli-frontend
           image: {{ .Values.controller.image }}
 
           env:
-   
+
           - name: JOB_MANAGER_API_HOSTNAME
             valueFrom:
               configMapKeyRef:
@@ -32,7 +32,7 @@ spec:
               configMapKeyRef:
                 name: {{ .Release.Name }}-config
                 key: basePath
- 
+
           - name: OAUTH_SIGNIN_URL
             valueFrom:
               configMapKeyRef:

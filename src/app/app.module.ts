@@ -69,7 +69,7 @@ const initAppFn = (envService: EnvironmentService) => {
     RadioButtonModule,
     DropdownModule,
     NgxMatomoTrackerModule.forRoot({
-      siteId: 3,
+      siteId: 4,
       trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'
     }),
     NgxMatomoRouterModule,

@@ -1,5 +1,5 @@
 ingress:
-  hostname: clean.proxy.localhost
+  hostname: molli.proxy.localhost
   tls: false
   annotations: {}
 
@@ -11,5 +11,5 @@ config:
   userInfoUrl: "https://oauth2.proxy.localhost/oauth2/userinfo"
 
 controller:
-  image: moleculemaker/clean-frontend
+  image: moleculemaker/molli-frontend
 

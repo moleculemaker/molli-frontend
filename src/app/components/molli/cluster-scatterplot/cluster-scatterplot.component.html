@@ -6,6 +6,6 @@
           [attr.width]="exemplarBoxSize" [attr.height]="exemplarBoxSize"
           [attr.x]="exemplarBoxSize * -0.5" [attr.y]="exemplarBoxSize * -0.5"
           rx="5" [attr.stroke]="exemplar.point.color" (click)="toggleExemplar(exemplar)"></rect>
-    <text [attr.stroke]="exemplar.point.color" [attr.dy]="exemplarBoxSize * 0.5 - 5" (click)="toggleExemplar(exemplar)">{{ exemplar.clusterIndex }}</text>
+    <text [attr.stroke]="exemplar.point.color" [attr.dy]="exemplarBoxSize * 0.5 - 5">{{ exemplar.clusterIndex }}</text>
   </g>
 </svg>

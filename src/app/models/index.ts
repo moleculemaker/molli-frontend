@@ -56,6 +56,7 @@ export interface ClusteringData {
   clusterAssignments: {
     [numberOfClusters: string]: { [structureName: string]: number }
   }
+  defaultNumberOfClusters: number;
   exemplars: string[][];
 }
 

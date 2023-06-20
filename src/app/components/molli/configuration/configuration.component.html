@@ -2,10 +2,10 @@
 
     <div class="container">
         <div class="card" *ngIf="disableCopyPaste">
-            <p-messages [(value)]="highTrafficMessage" [enableService]="false" [closable]="false"></p-messages>
+            <p-messages [(value)]="highTrafficMessages" [enableService]="false" [closable]="false"></p-messages>
         </div>
-        <div class="failJob" *ngIf="getErrorResponse">
-            <p-messages [(value)]="jobFailedMessage" [enableService]="false" [closable]="false"></p-messages>
+        <div class="failJob" *ngIf="hasBackendError">
+            <p-messages [(value)]="jobFailedMessages" [enableService]="false" [closable]="false"></p-messages>
         </div>
         <h3>Enter your enzyme sequence here</h3>
         <h5>Choose an input method below</h5>
@@ -22,55 +22,35 @@
             <div class="panel_content">
                 <ng-container *ngIf="selectedInputMethod == 'copy_and_paste'">
                     <div class="panel_bar">
-                        <h3>Sequences input</h3>
-                        
-                        <div class="buttons" *ngFor="let format of fileFormat">
-                            <p-radioButton name="format" [value]="format.value" [(ngModel)]="selectedfileFormat" [inputId]="format.label" (onClick)="submitValidate()"></p-radioButton>
-                            <label [for]="format.label" class="label">{{format.label}}</label>
-                        </div>
-
-                        <!-- <p-selectButton [options]="fileFormat" [(ngModel)]="selectedfileFormat"
-                            (onOptionClick)="submitValidate()">
-                            <ng-template let-item>
-                                {{item.label}}
-                            </ng-template>
-                        </p-selectButton> -->
-                        
-
-                        <div class="spacer"></div>
-
-                        <button pButton label="Clear all" (click)="clearAll()"
-                            class="p-button-text p-button-plain p-button-xs"></button>
                     </div>
-
-
-                    <textarea *ngIf="selectedfileFormat == 'amino'" pInputTextarea [rows]="8" placeholder="Please enter enzyme amino acid sequence in FASTA format." [(ngModel)]="sequenceData" #sequenceDataHtml="ngModel" (input)="submitValidate()"></textarea>
-                    <textarea *ngIf="selectedfileFormat == 'dna'" pInputTextarea [rows]="8" placeholder="Please enter enzyme DNA sequence in FASTA format." [(ngModel)]="sequenceData" #sequenceDataHtml="ngModel" (input)="submitValidate()"></textarea>
-                    <textarea *ngIf="selectedfileFormat == 'ncbi'" pInputTextarea [rows]="8" placeholder="Please enter enzyme NCBI accession number." [(ngModel)]="sequenceData" #sequenceDataHtml="ngModel" (input)="submitValidateNCBI()"></textarea>
 
                 </ng-container>
 
                 <ng-container *ngIf="selectedInputMethod == 'use_example'">
                     <div class="panel_bar">
                         <h3>Example</h3>
-                        
+
                         <!-- <div *ngFor="let example of exampleData">
                             <p-radioButton name="example" [value]="example.label" [(ngModel)]="selectedExample" [inputId]="example.label" (onClick)="selectExample()"></p-radioButton>
                             <label [for]="example.label" class="label">{{example.label}}</label>
                         </div> -->
 
+                      <!-- TODO replace
                         <p-selectButton [options]="exampleData" [(ngModel)]="selectedExample"
                             (onOptionClick)="selectExample()">
                             <ng-template let-item>
                                 {{item.label}}
                             </ng-template>
                         </p-selectButton>
+                        -->
                     </div>
 
                     <div class="example_data">
+                      <!-- TODO replace
                         <ng-container *ngIf="selectedExample">
                             <div *ngFor="let line of selectedExample.data.split('\n')">{{line}}</div>
                         </ng-container>
+                        -->
                     </div>
                 </ng-container>
             </div>
@@ -81,11 +61,10 @@
             <h3>Email</h3>
             <h5>Leave an email to get a notification when your result is ready.</h5>
             <div class="email">
-            <input type="email" name="email" pInputTextarea placeholder="Email" [(ngModel)]="userEmail" ngModel
-                #email="ngModel" email="true" (input)="enterEmail()">
+            <input type="email" name="email" pInputTextarea placeholder="Email" [(ngModel)]="userEmail" ngModel #email="ngModel" email="true">
             </div>
             <div class="email">
-                <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" label="Check the box to receive future updates!" (onChange)="subscribeMailingList()"></p-checkbox>
+                <p-checkbox [(ngModel)]="subscribeToEmail" [binary]="true" inputId="binary" label="Check the box to receive future updates!" (onChange)="subscribeMailingList()"></p-checkbox>
             </div>
 
         </ng-container>
@@ -95,9 +74,9 @@
                     <h3>Review</h3>
                     <br>
                     <div class="validation">
-                        <div *ngIf="!isValid && hasChanged" class="status warning">
+                        <div *ngIf="false" class="status warning">
                             <div class="status_label">Warning:</div>
-                            <div class="status_message">{{validationText}}</div>
+                            <div class="status_message">FIXME</div>
                         </div>
 
                         <div class="info">
@@ -113,12 +92,12 @@
                                 </svg>
                             </div>
 
-                            <div class="message">Valid No. of Sequences: {{seqNum}} Sequences</div>
+                            <div class="message">Valid No. of Sequences: FIXME Sequences</div>
 
                             <div class="progress_icon">
-                                <i class="pi pi-times-circle" *ngIf="!isValid && hasChanged"></i>
+                                <i class="pi pi-times-circle" *ngIf="false"></i>
                                 <!-- <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i> -->
-                                <i class="pi pi-check-circle" *ngIf="isValid"></i>
+                                <i class="pi pi-check-circle" *ngIf="true"></i>
                             </div>
                         </div>
                     </div>
@@ -126,8 +105,8 @@
             </div>
             <div class="buttons">
                 <br>
-                <button pButton type="button" label="Get the CLEAN Result" (click)="submitData()"
-                    icon="pi pi-arrow-right" iconPos="right" styleClass="p-button-xs" [disabled]="(!isValid && selectedInputMethod=='copy_and_paste') || disableCopyPaste"></button>
+                <button pButton type="button" label="Get the Molli Result" (click)="submitData()"
+                    icon="pi pi-arrow-right" iconPos="right" styleClass="p-button-xs" [disabled]="(false && selectedInputMethod=='copy_and_paste') || disableCopyPaste"></button>
             </div>
         </div>
     </div>

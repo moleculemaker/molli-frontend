@@ -1,6 +1,6 @@
 /**
  * This service enables the tracking of user activity within the application.
- * 
+ *
  * The current implementation uses Matomo. While the @ngx-matomo library offers
  * ways to track activity directly from component templates, we're adding this
  * wrapper in case we later replace Matomo.
@@ -19,8 +19,8 @@ export class TrackingService {
     private readonly tracker: MatomoTracker
   ) { }
 
-  trackPasteData(numSequences: number): void {
-    this.tracker.trackEvent('Configuration', 'Paste data', 'Number of sequences', numSequences);
+  trackUploadData(uploadType: 'core'|'substituent'): void {
+    this.tracker.trackEvent('Configuration', 'Upload data', uploadType);
   }
 
   trackValidationWarning(message: string): void {

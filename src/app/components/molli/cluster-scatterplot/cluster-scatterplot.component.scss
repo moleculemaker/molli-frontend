@@ -1,0 +1,26 @@
+svg {
+  display: block;
+}
+
+.background {
+  fill: #f7f8f9;
+}
+
+.exemplar {
+  rect {
+    stroke-width: 1px;
+    cursor: pointer;
+    fill: #ffffff;
+    opacity: 0.7;
+
+    &.selected, &:hover {
+      stroke-width: 2px;
+      opacity: 1;
+    }
+  }
+
+  text {
+    text-anchor: middle;
+    cursor: pointer;
+  }
+}

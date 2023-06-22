@@ -5,8 +5,8 @@ import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operator
 
 import { Message, SortEvent } from 'primeng/api';
 
+import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
-import { GeneratedStructure, JobResult, JobStatus } from "src/app/models";
 
 @Component({
   selector: 'app-results',
@@ -27,8 +27,8 @@ export class ResultsComponent {
   preComputedMessages: Message[];
   jobFailedMessages: Message[];
 
-  filteredResult: GeneratedStructure[] = [];
-  enableFilter: boolean = false;
+  allRows: GeneratedStructureViewModel[] = [];
+  filteredRows: GeneratedStructureViewModel[] = [];
 
   clusteringMethodOptions = [
     { name: 't-SNE (Default)', key: 'tsne' },
@@ -38,20 +38,18 @@ export class ResultsComponent {
 
   // TODO update number field here
   numberOfClustersModeOptions = [
-    { name: 'Elbow Value (Default)', key: 'elbow', number: 7 },
-    { name: 'Custom', key: 'custom', number: 6 }
+    { name: 'Elbow Value (Default)', key: 'elbow', number: -1 },
+    { name: 'Custom', key: 'custom', number: 1 }
   ];
   numberOfClustersMode = this.numberOfClustersModeOptions[0];
 
-  // TODO update this array based on numberOfClustersMode.number, and clear selectedClusters when numberOfClustersMode.number changes
-  clusters: ClusterSelection[] = [
-    { name: 'Cluster 0', value: 0 },
-    { name: 'Cluster 1', value: 1 },
-    { name: 'Cluster 2', value: 2 },
-    { name: 'Cluster 3', value: 3 },
-    { name: 'Cluster 4', value: 4 }
-  ];
-  selectedClusters: number[] = [];
+  clusters: ClusterSelection[] = [];
+  selectedClusters: number[] = []; // note that when filtering, an empty array will be treated as if the user had selected all clusters
+
+  allCores: string[] = [];
+  selectedCores: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all cores
+  allSubstituents: string[] = [];
+  selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
 
   constructor(private route: ActivatedRoute, private backendService: BackendService) {
     this.preComputedMessages = [
@@ -103,7 +101,19 @@ export class ResultsComponent {
       ).subscribe(
         (result) => {
           this.result = result;
+          this.numberOfClustersModeOptions.forEach(option => {
+            const clusteringData = this.getClusteringDataForMode(option.key as ClusteringMode);
+            option.number = clusteringData.defaultNumberOfClusters;
+          });
+          this.allRows = [];
+          this.updateClusterOptionsAndClearSelections();
+          const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
+          Object.entries(result.results.structures).forEach(([name, mol2]) => {
+            this.allRows.push(generatedStructureToViewModel(name, mol2, currentClusterAssignmentObject));
+          });
+          this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
+          this.filterTable();
         },
         (error: JobStatus) => {
           this.isFailed = true;
@@ -115,13 +125,70 @@ export class ResultsComponent {
   ngOnInit(): void {
   }
 
-  onTableFiltered(event: SortEvent, sorted: GeneratedStructure[]) {
-    // console.log(sorted);
-    this.filteredResult = sorted;
+  getClusteringDataForMode(mode: ClusteringMode): ClusteringData {
+    return this.result!.results.clusteringData[this.clusteringMethod.key];
   }
 
-  filterResult() {
-    this.enableFilter = !this.enableFilter;
+  getCurrentClusterAssignmentObject(): ClusterAssignmentObject {
+    return this.getClusteringDataForMode(this.clusteringMethod.key as ClusteringMode).clusterAssignments[this.numberOfClustersMode.number];
+  }
+
+  updateClusterOptionsAndClearSelections(): void {
+    this.clusters = [];
+    for (let i = 0; i < this.numberOfClustersMode.number; i++) {
+      this.clusters.push({ name: 'Cluster ' + i, value : i});
+    }
+    this.selectedClusters = [];
+  }
+
+  updateAllCoresAndSubstituentsAndClearSelections(): void {
+    const cores = new Set<string>();
+    const substituents = new Set<string>();
+    this.allRows.forEach(row => {
+      cores.add(row.core);
+      row.substituents.forEach(subst => {
+        substituents.add(subst.label);
+      });
+    })
+    this.allCores = [...cores.values()].sort((a, b) => a.localeCompare(b));
+    this.allSubstituents = [...substituents.values()].sort((a, b) => a.localeCompare(b));
+    this.selectedCores = [];
+    this.selectedSubstituents = [];
+  }
+
+  onNumberOfClustersChanged(newNumber: number): void {
+    this.numberOfClustersMode = this.numberOfClustersModeOptions.find(option => option.key === 'custom')!;
+    this.numberOfClustersMode.number = newNumber;
+    this.onFormChanged('number');
+  }
+
+  // TODO change form to reactive
+  onFormChanged(field: 'method'|'numberMode'|'number'|'selectedClusters'): void {
+    if (field === 'selectedClusters') {
+      this.filterTable();
+    } else if (field === 'method' || field === 'numberMode' || field === 'number') {
+      this.updateClusterOptionsAndClearSelections();
+      this.updateClusterAssignments();
+      this.filterTable();
+    } else {
+      console.log('Unknown case' + field);
+    }
+  }
+
+  updateClusterAssignments(): void {
+    const assignments = this.getCurrentClusterAssignmentObject();
+    this.allRows.forEach(row => {
+      row.cluster = assignments[row.name];
+    });
+  }
+
+  filterTable() {
+    // create an array to look up cluster status
+    const clusterLookup = this.clusters.map(cluster => this.selectedClusters.length === 0 || this.selectedClusters.includes(cluster.value));
+    // create sets to look up cores and substituents
+    const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
+    const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
+    this.filteredRows = this.allRows.filter(row => clusterLookup[row.cluster] && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
   }
 
   downloadResult(): void {
@@ -150,86 +217,22 @@ export class ResultsComponent {
   }
 
   customSort(event: SortEvent) {
-    /*
-    if (event.field == 'sequence') {
-      event.data?.sort((d1,d2) => {
-        let v1 = d1[event.field!];
-        let v2 = d2[event.field!];
-        return event.order === -1 ? v1.localeCompare(v2) : v2.localeCompare(v1);
+    console.log(event);
+    const order = event.order || 1;
+    if (event.field === 'name') {
+      event.data?.sort((d1,d2) => order * d1[event.field!].localeCompare(d2[event.field!]));
+    } else if (event.field === 'core') {
+      event.data?.sort((d1,d2) => order * d1[event.field!].localeCompare(d2[event.field!]));
+    } else if (event.field === 'substituents') {
+      // sort substituents within each row
+      this.allRows.forEach(row => {
+        row.substituents.sort((s1, s2) => order * s1.label.localeCompare(s2.label));
       });
+      // now sort rows by first substituent
+      event.data?.sort((d1,d2) => order * d1.substituents[0].label.localeCompare(d2.substituents[0].label));
+    } else if (event.field === 'cluster') {
+      event.data?.sort((d1,d2) => order * d1[event.field!] - d2[event.field!]);
     }
-    else if (event.field == 'ecNumbers') {
-      event.data?.sort((d1,d2) => {
-        let v1 = d1[event.field!][0];
-        let v2 = d2[event.field!][0];
-        return event.order === -1 ? v1.localeCompare(v2) : v2.localeCompare(v1);
-      });
-    }
-    if (event.field == 'score') {
-      if (event.order == 1) {
-        // ascending low -> high
-        this.rows.forEach((element, index, array) => {
-          let tempArray: any[] = [];
-          element['score'].forEach((element2, index2) => {
-            tempArray.push([element['ecNumbers'][index2], element['score'][index2], element['level'][index2]]);
-            // console.log([element['ecNumbers'][index2], element['score'][index2], element['level'][index2]]);
-          });
-          // console.log('temp = ', tempArray);
-          tempArray.sort((a, b) => {
-            // console.log(a[1], b[1]);
-            if (a[1] < b[1]) {
-              return -1;
-            }
-            if (a[1] > b[1]) {
-              return 1;
-            }
-            return 0;
-          });
-          array[index]['ecNumbers'] = tempArray.map((subarray) => subarray[0]);
-          array[index]['score'] = tempArray.map((subarray) => subarray[1]);
-          array[index]['level'] = tempArray.map((subarray) => subarray[2]);
-          // console.log(array[index]['level']);
-          // console.log(this.rows[index]['level']);
-        });
-      }
-      else {
-        // decending high -> low
-        this.rows.forEach((element, index, array) => {
-          let tempArray: any[] = [];
-
-          element['score'].forEach((element2, index2) => {
-            tempArray.push([element['ecNumbers'][index2], element['score'][index2], element['level'][index2]]);
-            // console.log([element['ecNumbers'][index2], element['score'][index2], element['level'][index2]]);
-          });
-
-          // console.log('temp = ', tempArray);
-          tempArray.sort((a, b) => {
-            // console.log(a[1], b[1]);
-            if (a[1] > b[1]) {
-              return -1;
-            }
-            if (a[1] < b[1]) {
-              return 1;
-            }
-            return 0;
-          });
-          array[index]['ecNumbers'] = tempArray.map((subarray) => subarray[0]);
-          array[index]['score'] = tempArray.map((subarray) => subarray[1]);
-          array[index]['level'] = tempArray.map((subarray) => subarray[2]);
-          // console.log(array[index]['level']);
-          // console.log(this.rows[index]['level']);
-        });
-      }
-
-      event.data?.sort((d1,d2) => {
-        let v1 = d1[event.field!][0];
-        let v2 = d2[event.field!][0];
-        return event.order === -1 ? v2 - v1 : v1 - v2;
-      });
-    }
-
-
-     */
   }
 
   copyAndPasteURL(): void {
@@ -256,3 +259,47 @@ export interface ClusterSelection {
   name: string;
   value: number;
 }
+
+interface GeneratedStructureViewModel {
+  name: string;
+  core: string;
+  substituents: Substituent[];
+  mol2: string;
+  cluster: number;
+}
+
+interface Substituent {
+  label: string;
+  count: number;
+}
+
+function generatedStructureToViewModel(name: string, mol2: string, clusterAssignments: ClusterAssignmentObject): GeneratedStructureViewModel {
+  const separator = '_'; // TODO make configurable and/or change
+  const namePieces = name.split(separator);
+  const core = namePieces.shift()!;
+  return {
+    name,
+    core,
+    substituents: namePiecesToSubtituentArray(namePieces),
+    mol2,
+    cluster: clusterAssignments[name]
+  };
+}
+
+function namePiecesToSubtituentArray(namePieces: string[]): Substituent[] {
+  const returnVal: Substituent[] = [];
+  const labelToCount = new Map<string, number>();
+  namePieces.forEach(label => {
+    if (labelToCount.has(label)) {
+      labelToCount.set(label, labelToCount.get(label)! + 1);
+    } else {
+      labelToCount.set(label, 1);
+    }
+  });
+  labelToCount.forEach((count, label) => {
+    returnVal.push({label, count});
+  });
+  return returnVal;
+}
+
+type ClusteringMode = 'pca'|'tsne';

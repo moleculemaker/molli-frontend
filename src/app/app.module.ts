@@ -16,6 +16,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MenuModule } from "primeng/menu";
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { PanelModule } from 'primeng/panel';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -28,6 +29,7 @@ import { AppComponent } from './app.component';
 import { ClusterScatterplotComponent } from './components/molli/cluster-scatterplot/cluster-scatterplot.component';
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
+import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.component';
 import { ResultsComponent } from './components/molli/results/results.component';
 
 import { EnvironmentService } from "./services/environment.service";
@@ -42,6 +44,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
+    Molecule3dComponent,
     ResultsComponent
   ],
   imports: [
@@ -58,6 +61,7 @@ const initAppFn = (envService: EnvironmentService) => {
     MessagesModule,
     MenuModule,
     MultiSelectModule,
+    OverlayPanelModule,
     PanelModule,
     ProgressBarModule,
     SelectButtonModule,

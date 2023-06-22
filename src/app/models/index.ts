@@ -1,5 +1,10 @@
+export interface JobPostData {
+  cores: string;
+  subs: string;
+}
+
 export interface JobPostRequest {
-  data: null; // TODO FIXME
+  data: JobPostData; // TODO FIXME
   user_email: string; // TODO empty string if no entry?
   captcha_token: string;
 }

@@ -9,7 +9,7 @@ import {
   JobPostRequest,
   JobResult,
   JobStatus,
-  LibraryResults
+  LibraryResults, JobPostData
 } from 'src/app/models';
 import { EnvVars } from "src/app/models/envvars";
 import { EnvironmentService } from "./environment.service";
@@ -32,27 +32,27 @@ export class BackendService {
     this.envs = this.envService.getEnvConfig();
   }
 
-  submitJob(data: null, user_email: string, captcha_token: string = ''): Observable<JobPostResponse>{
+  submitJob(data: JobPostData, user_email: string, captcha_token: string = ''): Observable<JobPostResponse>{
     const payload: JobPostRequest = {
       data,
       user_email,
       captcha_token
     };
-    return this.http.post<JobPostResponse>(`${this.hostname}/${this.apiBasePath}/job/submit`, payload, { withCredentials: true }); //should return a jobID
+    return this.http.post<JobPostResponse>(`${this.hostname}/${this.apiBasePath}/job/molli`, payload, { withCredentials: true }); //should return a jobID
   }
 
   getJobStatus(jobId: string): Observable<JobStatus> {
     if (this.isExampleJob(jobId)) {
       return this.getExampleJobStatus(jobId as ExampleKey);
     }
-    return this.http.get<JobStatus>(`${this.hostname}/${this.apiBasePath}/job/status/${jobId}`, { withCredentials: true });
+    return this.http.get<JobStatus>(`${this.hostname}/${this.apiBasePath}/job/molli/${jobId}`, { withCredentials: true });
   }
 
   getJobResult(jobId: string): Observable<JobResult> {
     if (this.isExampleJob(jobId)) {
       return this.getExampleJobResult(jobId as ExampleKey);
     }
-    return this.http.get<JobResult>(`${this.hostname}/${this.apiBasePath}/job/results/${jobId}`, { withCredentials: true });
+    return this.http.get<JobResult>(`${this.hostname}/${this.apiBasePath}/job/molli/results/${jobId}`, { withCredentials: true });
   }
 
   addEmail(userEmail: string): Observable<EmailPostResponse>{
@@ -70,7 +70,7 @@ export class BackendService {
   getExampleJobPostResponse(key: ExampleKey): Observable<JobPostResponse> {
     return of({
       jobId: key,
-      url: "mmli.clean.com/jobId/b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78",
+      url: "mmli.molli.com/jobId/b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78",
       status: "completed", // TODO replace with string enum
       created_at: "2020-01-01 10:10:10"
     });
@@ -79,7 +79,7 @@ export class BackendService {
   getExampleJobStatus(key: ExampleKey): Observable<JobStatus> {
     return of({
       jobId: key,
-      url: "mmli.clean.com/jobId/b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78",
+      url: "mmli.molli.com/jobId/b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78",
       status: "completed", // TODO replace with string enum
       created_at: "2020-01-01 10:10:10"
     });

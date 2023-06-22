@@ -30,7 +30,7 @@
     <div class="spacer"></div>
 
     <p-menu #menu class="user_menu" [model]="userMenuItems" [popup]="true" appendTo="body"></p-menu>
-    <div class="user_menu_button" *ngIf="userInfo" (click)="menu.toggle($event)">{{ userInfo.email }}</div>
+    <div class="user_menu_button" *ngIf="userInfo | async as user" (click)="menu.toggle($event)">{{ user.email }}</div>
 
     <div class="login_button" *ngIf="!userInfo" (click)="login()">Sign In</div>
 

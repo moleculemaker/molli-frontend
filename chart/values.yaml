@@ -6,8 +6,8 @@ ingress:
 config:
   hostname: "https://jobmgr.proxy.localhost"
   basePath: "api/v1"
-  signInUrl: "https://oauth2.proxy.localhost/oauth2/start?rd=https%3A%2F%2Fclean.proxy.localhost%2Fconfiguration"
-  signOutUrl: "https://oauth2.proxy.localhost/oauth2/sign_out?rd=https%3A%2F%2Fclean.proxy.localhost%2Fconfiguration"
+  signInUrl: "https://oauth2.proxy.localhost/oauth2/start?rd=https%3A%2F%2Fmolli.proxy.localhost%2Fconfiguration"
+  signOutUrl: "https://oauth2.proxy.localhost/oauth2/sign_out?rd=https%3A%2F%2Fmolli.proxy.localhost%2Fconfiguration"
   userInfoUrl: "https://oauth2.proxy.localhost/oauth2/userinfo"
 
 controller:

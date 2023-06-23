@@ -57,6 +57,7 @@ export interface ClusteringData {
     [numberOfClusters: string]: ClusterAssignmentObject
   }
   defaultNumberOfClusters: number;
+  distortions: number[];
   exemplars: string[][];
 }
 

@@ -136,8 +136,12 @@ export class ResultsComponent {
     return this.result!.results.clusteringData[this.clusteringMethod.key];
   }
 
+  getCurrentClusteringData(): ClusteringData {
+    return this.getClusteringDataForMode(this.clusteringMethod.key as ClusteringMode);
+  }
+
   getCurrentClusterAssignmentObject(): ClusterAssignmentObject {
-    return this.getClusteringDataForMode(this.clusteringMethod.key as ClusteringMode).clusterAssignments[this.numberOfClustersMode.number];
+    return this.getCurrentClusteringData().clusterAssignments[this.numberOfClustersMode.number];
   }
 
   updateClusterOptionsAndClearSelections(): void {

@@ -29,7 +29,7 @@ export class ClusterElbowPlotComponent implements OnChanges {
     top: 10,
     right: 20,
     bottom: 40,
-    left: 40
+    left: 60
   };
 
   pointRadius = {

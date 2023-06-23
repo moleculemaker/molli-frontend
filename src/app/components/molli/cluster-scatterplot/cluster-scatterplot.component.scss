@@ -1,0 +1,30 @@
+svg {
+  display: block;
+}
+
+.background {
+  fill: #f7f8f9;
+}
+
+.exemplar {
+  rect {
+    stroke-width: 1px;
+    cursor: pointer;
+    fill: #ffffff;
+    opacity: 0.7;
+
+    &.selected, &:hover {
+      stroke-width: 2px;
+    }
+
+    &:not(.selected):hover {
+      stroke-dasharray: 0.5% 0.5%;
+      opacity: 1;
+    }
+  }
+
+  text {
+    text-anchor: middle;
+    pointer-events: none; // prevent text element from interfering with hover/click on rect element
+  }
+}

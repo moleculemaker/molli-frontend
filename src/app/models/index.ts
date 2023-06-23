@@ -1,65 +1,63 @@
-export interface PredictionRow {
-  sequence: string;
-  ecNumbers: string[];
-  score: number[];
-  level: string[];
-}
-
-export interface ExampleData {
-  label: string;
-  data: string;
-}
-
-export interface SingleSeqResult {
-  ecNumber: string;
-  score: number;
-}
-
-export interface SeqResult {
-  sequence: string;
-  result: SingleSeqResult[];
-}
-
-export interface SingleSeqData {
-  header: string;
-  sequence: string;
-  DNA_sequence: string;
-}
-
-export interface PostSeqData {
-  input_fasta: SingleSeqData[];
-  user_email: string;
+export interface JobPostRequest {
+  data: null; // TODO FIXME
+  user_email: string; // TODO empty string if no entry?
   captcha_token: string;
 }
 
-export interface PostResponse {
+export interface JobPostResponse {
   jobId: string;
   url: string;
-  status: number;
+  status: string;
   created_at: string;
 }
 
-export interface PostEmailResponse {
-  status: string;
-  message: string;
-}
-
-export interface PostEmailData {
+export interface EmailPostRequest {
   email: string;
   captcha_token: string;
 }
 
-export interface PollingResponseStatus {
+export interface EmailPostResponse {
+  status: string;
+  message: string;
+}
+
+export interface JobStatus {
   jobId: string;
   url: string;
   status: string;
   created_at: string;
 }
 
-export interface PollingResponseResult {
+export interface JobResult {
   jobId: string;
   url: string;
   status: string;
   created_at: string;
-  results: SeqResult[];
+  results: LibraryResults;
 }
+
+export interface Structure {
+  mol2: string;
+  svg: string;
+}
+
+export interface LibraryResults {
+  clusteringData: { [clusteringMode: string]: ClusteringData };
+  structures: { [structureName: string]: Structure };
+}
+
+export type ClusterAssignmentObject = { [structureName: string]: number };
+
+export interface ClusteringData {
+  coordinates: {
+    "0": { [structureName: string]: number },
+    "1": { [structureName: string]: number }
+  };
+  clusterAssignments: {
+    [numberOfClusters: string]: ClusterAssignmentObject
+  }
+  defaultNumberOfClusters: number;
+  distortions: number[];
+  exemplars: string[][];
+}
+

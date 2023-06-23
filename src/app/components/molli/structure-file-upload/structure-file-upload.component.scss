@@ -1,0 +1,107 @@
+/**************** structure-file-upload ******************/
+
+@import '../../../css/core';
+
+//use primeng theme colors whenver possible
+//https://www.primefaces.org/primeng/colors
+
+//**************** custom mixins ******************
+
+
+//**************** css ******************
+
+p-fileupload {
+//    width: 100%;
+}
+
+::ng-deep .file_upload {
+    margin: ($padding * .5) 0rem;
+
+    .p-fileupload-buttonbar {
+        display: flex;
+        align-items: center;
+        gap: $padding * .25;
+
+        background: none;
+
+        padding: 0rem ($padding * .25); //($padding);
+
+        border: 0px;
+
+        .p-button {
+            order: 1;
+
+            color: css_var('button_link');
+
+            border: 0px;
+
+            //ok to remove outline since we have an underline indicating a button
+            &:focus {
+                outline: 0px !important;
+                box-shadow: none !important;
+            }
+
+            &:hover {
+                color: css_var('button_link_hover');
+                background: none;
+
+                border: 0px;
+
+                @include transition(none);
+            }
+
+            .p-button-icon {
+                display: none;
+            }
+
+            .p-button-label {
+                font: {
+                    weight: normal;
+                }
+            }
+        }
+
+        .instructions {
+            order: 0;
+
+            display: flex;
+            align-items: center;
+            gap: $padding * .25;
+
+            .circle {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                width: 1.25rem;
+                height: 1.25rem;
+
+                background: {
+                    color: #f3f5fb;
+                }
+
+                font: {
+                    size: .75rem;
+                }
+
+                border: 1px solid #495057;
+
+                @include border-radius(50%);
+            }
+        }
+
+        strong {
+            font: {
+                weight: bold;
+            }
+        }
+    }
+
+    .p-fileupload-content {
+        padding: ($padding * .5) ($padding);
+
+        border: 1px dashed #aaa; //css_var('interface_border');
+
+        @include border-radius($border_radius);
+    }
+}

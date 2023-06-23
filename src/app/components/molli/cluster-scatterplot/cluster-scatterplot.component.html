@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" preserveAspectRatio="none">
+  <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"></rect>
+  <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="2" [attr.fill]="point.color"></circle>
+  <g *ngFor="let exemplar of exemplars" class="exemplar" [attr.transform]="'translate(' + exemplar.point.x + ',' + exemplar.point.y + ')'">
+    <rect [class.selected]="exemplar.isSelected"
+          [attr.width]="exemplarBoxSize" [attr.height]="exemplarBoxSize"
+          [attr.x]="exemplarBoxSize * -0.5" [attr.y]="exemplarBoxSize * -0.5"
+          rx="5" [attr.stroke]="exemplar.point.color" (click)="toggleExemplar(exemplar)"></rect>
+    <text [attr.stroke]="exemplar.point.color" [attr.dy]="exemplarBoxSize * 0.5 - 5">{{ exemplar.clusterIndex }}</text>
+  </g>
+</svg>

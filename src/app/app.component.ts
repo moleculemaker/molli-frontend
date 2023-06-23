@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import {UserInfoService} from "./services/userinfo.service";
+import {Component} from '@angular/core';
+import {UserInfoService} from "./services/user-info.service";
 import {EnvironmentService} from "./services/environment.service";
 import {EnvVars} from "./models/envvars";
 import {MenuItem} from "primeng/api";
@@ -10,17 +10,18 @@ import {MenuItem} from "primeng/api";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  emailstring: string = "mailto:clean-feedback@moleculemaker.org?Subject=User feedback for CLEAN";
+  // TODO update email address
+  emailstring: string = "mailto:clean-feedback@moleculemaker.org?Subject=User feedback for Molli";
   showCite: boolean = false;
 
   showComingSoonPopup: boolean = false;
-  comingSoonTimerID: number|null = null;
+  comingSoonTimerID: number | null = null;
   autocloseComingSoonPopup: boolean = true;
 
   envs: EnvVars;
 
   get userMenuItems(): Array<MenuItem> {
-    return this.userInfo ? [{ label: 'Sign Out', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }] : [];
+    return this.userInfo ? [{label: 'Sign Out', icon: 'pi pi-fw pi-sign-out', command: () => this.logout()}] : [];
   }
 
   get userInfo() {
@@ -32,11 +33,11 @@ export class AppComponent {
   }
 
   ngOnInit() {
-      this.envs = this.envService.getEnvConfig();
-      this.userInfoService.fetchUserInfo();
-      this.comingSoonTimerID = setTimeout(()=>{
-        this.toggleComingSoonPopup();
-      }, 2000);
+    this.envs = this.envService.getEnvConfig();
+    this.userInfoService.fetchUserInfo();
+    this.comingSoonTimerID = setTimeout(() => {
+      this.toggleComingSoonPopup();
+    }, 2000);
   }
 
   citeButton() {
@@ -46,12 +47,14 @@ export class AppComponent {
   toggleComingSoonPopup() {
     this.showComingSoonPopup = !this.showComingSoonPopup;
 
-    if (this.comingSoonTimerID) {clearTimeout(this.comingSoonTimerID);}
+    if (this.comingSoonTimerID) {
+      clearTimeout(this.comingSoonTimerID);
+    }
 
     if (this.autocloseComingSoonPopup) {
       this.autocloseComingSoonPopup = false;
 
-      this.comingSoonTimerID = setTimeout(()=>{
+      this.comingSoonTimerID = setTimeout(() => {
         this.toggleComingSoonPopup();
       }, 8000);
     }

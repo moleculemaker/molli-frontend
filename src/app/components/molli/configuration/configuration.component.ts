@@ -68,7 +68,7 @@ export class ConfigurationComponent {
     // if the user uses example file, return precompiled result
     // else send sequence to backend, jump to results page
     if (this.selectedInputMethod == 'use_example') {
-      this.backendService.getExampleJobPostResponse(ExampleKey.NEW_ENV)
+      this.backendService.getExampleJobPostResponse(ExampleKey.EXAMPLE1)
         .subscribe(
           (data) => {
             this.router.navigate(['/results', data.jobId]);

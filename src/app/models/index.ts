@@ -36,17 +36,17 @@ export interface JobResult {
   results: LibraryResults;
 }
 
-export interface LibraryResults {
-  generatedStructures: GeneratedStructure[];
-  clusteringData: { [clusteringMode: string]: ClusteringData };
+export interface Structure {
+  mol2: string;
+  svg: string;
 }
 
-export interface GeneratedStructure {
-  name: string;
-  core: string; // TODO not multiple, right?
-  substituent: string; // TODO multiple?
-  some_kind_of_structure_info: null; // TODO figure out what's needed
+export interface LibraryResults {
+  clusteringData: { [clusteringMode: string]: ClusteringData };
+  structures: { [structureName: string]: Structure };
 }
+
+export type ClusterAssignmentObject = { [structureName: string]: number };
 
 export interface ClusteringData {
   coordinates: {
@@ -54,9 +54,10 @@ export interface ClusteringData {
     "1": { [structureName: string]: number }
   };
   clusterAssignments: {
-    [numberOfClusters: string]: { [structureName: string]: number }
+    [numberOfClusters: string]: ClusterAssignmentObject
   }
   defaultNumberOfClusters: number;
+  distortions: number[];
   exemplars: string[][];
 }
 

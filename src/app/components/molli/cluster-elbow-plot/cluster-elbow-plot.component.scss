@@ -1,0 +1,38 @@
+svg {
+  display: block;
+}
+
+.background {
+  fill: #f7f8f9;
+}
+
+.grid {
+  stroke-width: 1;
+  stroke: #F0F0F0;
+}
+
+.axis {
+  stroke: #224063;
+  font-size: 10px;
+  font-weight: 200;
+  opacity: 0.5;
+}
+
+.point {
+  fill: #A6CEE3;
+
+  &.selected {
+    fill: #224063;
+  }
+}
+
+.curve {
+  fill: none;
+  stroke: #A6CEE3;
+}
+
+.click-target {
+  cursor: pointer;
+  fill: transparent;
+  stroke: transparent;
+}

@@ -101,5 +101,5 @@ export class BackendService {
 
 // TODO add more examples?
 export enum ExampleKey {
-  NEW_ENV = 'new_env'
+  EXAMPLE1 = 'example1'
 }

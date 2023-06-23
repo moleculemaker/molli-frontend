@@ -8,6 +8,7 @@ import { NgxMatomoTrackerModule } from '@ngx-matomo/tracker';
 import { NgxMatomoRouterModule } from '@ngx-matomo/router';
 import { NgHcaptchaModule } from 'ng-hcaptcha';
 
+import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
@@ -18,6 +19,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MenuModule } from "primeng/menu";
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { PanelModule } from 'primeng/panel';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -27,9 +29,11 @@ import { TableModule } from 'primeng/table';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot/cluster-elbow-plot.component';
 import { ClusterScatterplotComponent } from './components/molli/cluster-scatterplot/cluster-scatterplot.component';
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
+import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.component';
 import { ResultsComponent } from './components/molli/results/results.component';
 import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
 
@@ -42,9 +46,11 @@ const initAppFn = (envService: EnvironmentService) => {
 @NgModule({
   declarations: [
     AppComponent,
+    ClusterElbowPlotComponent,
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
+    Molecule3dComponent,
     ResultsComponent,
     StructureFileUploadComponent
   ],
@@ -54,6 +60,7 @@ const initAppFn = (envService: EnvironmentService) => {
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+    AvatarModule,
     ButtonModule,
     CheckboxModule,
     ChipModule,
@@ -64,6 +71,7 @@ const initAppFn = (envService: EnvironmentService) => {
     MessagesModule,
     MenuModule,
     MultiSelectModule,
+    OverlayPanelModule,
     PanelModule,
     ProgressBarModule,
     SelectButtonModule,

@@ -11,6 +11,8 @@ import { NgHcaptchaModule } from 'ng-hcaptcha';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ChipModule } from 'primeng/chip';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -27,14 +29,15 @@ import { TableModule } from 'primeng/table';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot/cluster-elbow-plot.component';
 import { ClusterScatterplotComponent } from './components/molli/cluster-scatterplot/cluster-scatterplot.component';
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
 import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.component';
 import { ResultsComponent } from './components/molli/results/results.component';
+import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
 
 import { EnvironmentService } from "./services/environment.service";
-import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot/cluster-elbow-plot.component';
 
 const initAppFn = (envService: EnvironmentService) => {
   return () => envService.loadEnvConfig('/assets/config/envvars.json');
@@ -43,12 +46,13 @@ const initAppFn = (envService: EnvironmentService) => {
 @NgModule({
   declarations: [
     AppComponent,
+    ClusterElbowPlotComponent,
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
     Molecule3dComponent,
     ResultsComponent,
-    ClusterElbowPlotComponent
+    StructureFileUploadComponent
   ],
   imports: [
     BrowserModule,
@@ -59,6 +63,8 @@ const initAppFn = (envService: EnvironmentService) => {
     AvatarModule,
     ButtonModule,
     CheckboxModule,
+    ChipModule,
+    DialogModule,
     DropdownModule,
     InputTextareaModule,
     FileUploadModule,

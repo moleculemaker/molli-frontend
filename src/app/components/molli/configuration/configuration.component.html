@@ -22,8 +22,63 @@
             <div class="panel_content">
                 <ng-container *ngIf="selectedInputMethod == 'copy_and_paste'">
                     <div class="panel_bar">
+                        <div class="py-3">
+                            <h3>Document Center</h3>
+                            <div>
+                                Please upload 2 drawing files in total. One file that only include core, and another file that only include substituents.
+
+                                <button pButton type="button" label="Drawing Instruction" icon="pi pi-external-link" class="p-button-text p-button-xs mt-2 -ml-1 p-1"></button>
+                            </div>
+                        </div>
                     </div>
 
+                    <p-table [value]="fileUploadArray" class="file_upload_table">
+                        <ng-template pTemplate="header">
+                            <tr *ngIf="hasAnyFileBeenUploaded()">
+                                <th class="column_filename">Filename</th>
+                                <th class="column_size">Size</th>
+                                <th class="column_type">Type</th>
+                                <th class="column_status">Status</th>
+                                <th class="column_status_details">Status Details</th>
+                                <th class="column_action">Action</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-file>
+                            <tr *ngIf="file.uploadedFile">
+                                <td class="column_filename">{{ file.uploadedFile.name }}</td>
+                                <td class="column_size">{{ file.uploadedFile.size }} bytes</td>
+                                <td class="column_type">{{ file.type }}</td>
+                                <td class="column_status">
+<!-- todo: remove (click) as this was to fake the processing in the backend -->
+                                    <p-chip label="Processing" icon="pi pi-spin pi-spinner" styleClass="status_processing" *ngIf="file.status == 'processing'" (click)="file.status = 'success'"></p-chip>
+                                    <p-chip label="Success" icon="pi pi-check" styleClass="status_success" *ngIf="file.status == 'success'" (click)="file.status = 'warning'"></p-chip>
+                                    <p-chip label="Warning" icon="pi pi-exclamation-triangle" styleClass="status_warning" *ngIf="file.status == 'warning'" (click)="file.status = 'processing'"></p-chip>
+                                </td>
+                                <td class="column_status_details" [innerHTML]="file.status_details"></td>
+                                <td class="column_action">
+                                    <div class="flex align-center gap-2">
+                                        <p-button icon="pi pi-eye" styleClass="p-button-rounded p-button-text" (click)="reviewResults(file)" pTooltip="Review Results" tooltipPosition="top"></p-button>
+                                        <p-button icon="pi pi-undo" styleClass="p-button-rounded p-button-text" pTooltip="Undo" tooltipPosition="top"></p-button>
+                                        <p-button icon="pi pi-times" styleClass="p-button-rounded p-button-text" pTooltip="Delete" tooltipPosition="top"></p-button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="!file.uploadedFile">
+                                <td colspan="7" style="background-color: #f8f8f8;">
+                                    
+                                    <div class="upload_bar">
+                                        <app-structure-file-upload
+                                            [type]="file.type"
+                                            (onUploadedFile)="onUploadedFile($event, file)"
+                                        ></app-structure-file-upload>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
                 </ng-container>
 
                 <ng-container *ngIf="selectedInputMethod == 'use_example'">
@@ -58,7 +113,7 @@
         </p-panel>
 
         <ng-container *ngIf="selectedInputMethod == 'copy_and_paste'">
-            <h3>Email</h3>
+            <h3 class="pt-5">Email</h3>
             <h5>Leave an email to get a notification when your result is ready.</h5>
             <div class="email">
             <input type="email" name="email" pInputTextarea placeholder="Email" [(ngModel)]="userEmail" ngModel #email="ngModel" email="true">
@@ -66,8 +121,8 @@
             <div class="email">
                 <p-checkbox [(ngModel)]="subscribeToEmail" [binary]="true" inputId="binary" label="Check the box to receive future updates!" (onChange)="subscribeMailingList()"></p-checkbox>
             </div>
-
         </ng-container>
+
         <div class="controls">
             <div class="review">
                 <ng-container *ngIf="selectedInputMethod == 'copy_and_paste'">
@@ -111,3 +166,43 @@
         </div>
     </div>
 </div>
+
+<p-dialog
+    [(visible)]="selectedFileToReview"
+
+    [modal]="true"
+    [blockScroll]="true"
+    [dismissableMask]="true"
+
+    header="Review—Validate your input file"
+    [style]="{marginLeft: '2rem', marginRight: '2rem', maxWidth: '960px'}"
+>
+    <ng-container *ngIf="selectedFileToReview && selectedFileToReview.results">
+        <p-table [value]="selectedFileToReview.results" [scrollable]="true" scrollHeight="75vh" class="review_table">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="column_index">#</th>
+                    <th class="column_label">Substituent Labels</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+                <tr
+                    [class.warning]="row.warning"
+                >
+                    <td class="column_index">
+                        <div *ngIf="row.warning"><i class="pi pi-exclamation-triangle"></i></div>
+                        <div *ngIf="!row.warning">{{ rowIndex + 1 }}</div>
+                    </td>
+                    <td class="column_label">
+                        <div class="flex align-top gap-3">
+                            <div class="mr-2">{{ row.label }}</div>
+
+                            <p-chip [label]="row.warning" styleClass="-mt-2" *ngIf="row.warning"></p-chip>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+</p-dialog>

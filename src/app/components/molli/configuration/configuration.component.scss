@@ -7,6 +7,14 @@
 
 //**************** custom mixins ******************
 
+@mixin column_status($name) {
+    ::ng-deep .status_#{$name} {
+        color: css_var('background');
+        background: {
+            color: css_var(#{'configuration_status_' + $name});
+        }
+    }
+}
 
 //**************** css ******************
 
@@ -72,6 +80,12 @@
 
     border: {
         bottom: 1px solid #dee2e6;
+    }
+
+    &.upload_bar {
+        background: {
+            color: #f8f8f8; // #f2f5fc;
+        }
     }
 
     h1,
@@ -230,4 +244,107 @@
     margin: auto;
     text-align: center;
     width: 100%;
+}
+
+.file_upload_table {
+    th,
+    td {
+        padding: ($padding * .75);
+
+        &:first-child {
+            padding: {
+                left: $padding * 1.5; //provide more padding to match page content
+            }
+        }
+
+        &.column_status {
+            min: {
+                width: 10rem; //avoid column sizing changes when status is updated
+            }
+        }
+    }
+
+    th {
+        padding: {
+            top: $padding;
+            bottom: $padding;
+        }
+
+        font: {
+            weight: normal;
+        }
+        text: {
+            transform: uppercase;
+        }
+
+        vertical-align: bottom;
+    }
+
+    td {
+        &.column_filename {
+            max: {
+                width: 15rem;
+            }
+
+            overflow-wrap: anywhere; //break-word; //word-wrap: break-word;
+        }
+
+        &.column_status {
+            @include column_status('processing');
+            @include column_status('success');
+            @include column_status('warning');
+        }
+
+        &.column_status_details {
+            ::ng-deep strong,
+            ::ng-deep b {
+                font: {
+                    weight: bold;
+                }
+            }
+        }
+
+        &.column_action {
+            ::ng-deep .p-button {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                width: 1.5rem;
+                height: 1.5rem;
+
+                padding: 0rem;
+
+                .pi {
+                    font: {
+                        size: .9rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.review_table {
+    tr {
+        &.warning {
+            background: {
+                color: #FEF2E8;
+            }
+
+            .column_index {
+                color: #D46213;
+            }
+
+            ::ng-deep .p-chip {
+                max-width: 30rem;
+
+                color: css_var('background');
+                background: {
+                    color: #D46213;
+                }
+            }
+        }
+    }
+//    #D46213
 }

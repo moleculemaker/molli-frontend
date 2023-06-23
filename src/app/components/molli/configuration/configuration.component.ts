@@ -25,10 +25,13 @@ export class ConfigurationComponent {
   jobFailedMessages: Message[];
 
   inputMethods = [
-    { label: 'Upload', icon: 'pi pi-copy', value: 'copy_and_paste' },
-    { label: 'Use Examples', icon: 'pi pi-table', value: 'use_example' },
+    { label: 'Upload 2 Files', icon: 'pi pi-cloud-upload', value: 'copy_and_paste' },
+    { label: 'Select an Example', icon: 'pi pi-table', value: 'use_example' },
   ];
   selectedInputMethod: any | null = 'copy_and_paste'; //this.inputMethods[0];
+
+  fileUploadArray: any[] = []; //master list of files needing to be uploaded to the server (and stores results once completed)
+  selectedFileToReview: any|null = null;
 
   constructor(
     private router: Router,
@@ -53,6 +56,25 @@ export class ConfigurationComponent {
     this.jobFailedMessages = [
       { severity: 'error', detail: ''}
     ];
+
+/*
+      {type: 'core', status: 'processing', status_details: 'Checking for structures...', uploadedFile: {
+        name: 'test.txt', size: 22
+      }, results: [
+        {label: 'YYYYY', warning: 'Duplicate Names: All of them will be deleted automatically for better results.'},
+        {label: 'YYYYY', warning: 'Duplicate Names: All of them will be deleted automatically for better results.'},
+        {label: 'AAAAA'},
+        {label: 'BBBBB'},
+        {label: 'CCCCC'},
+        {label: 'DDDDD'},
+        {label: 'EEEEE'},
+        {label: 'FFFFF'},
+      ]},
+*/
+    this.fileUploadArray = [
+      {type: 'core', status: 'processing', status_details: 'Checking for structures...', uploadedFile: null},
+      {type: 'substituent', status: 'processing', status_details: 'Checking for structures...', uploadedFile: null},
+    ];
   }
 
   getExampleData() {
@@ -62,6 +84,35 @@ export class ConfigurationComponent {
   selectExample() {
     // TODO FIXME
     // this.trackingService.trackSelectExampleData(this.selectedExample.label);
+  }
+
+  onUploadedFile(uploadedFile:any, file:any) {
+    file.uploadedFile = uploadedFile;
+
+//todo: change this to real data
+    file.results = [
+      {label: 'YYYYY', warning: 'Duplicate Names: All of them will be deleted automatically for better results.'},
+      {label: 'YYYYY', warning: 'Duplicate Names: All of them will be deleted automatically for better results.'},
+      {label: 'AAAAA'},
+      {label: 'BBBBB'},
+      {label: 'CCCCC'},
+      {label: 'DDDDD'},
+      {label: 'EEEEE'},
+      {label: 'FFFFF'},
+    ];
+  }
+
+  hasAnyFileBeenUploaded():boolean {
+//todo: determine if we need this feature or not
+return true;
+
+    return this.fileUploadArray.find(obj=>{
+      return (obj.uploadedFile) ? true : false;
+    });
+  }
+
+  reviewResults(file:any) {
+    this.selectedFileToReview = file;
   }
 
   submitData() {

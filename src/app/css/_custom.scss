@@ -22,10 +22,16 @@ $colors: map.merge($colors, (
 	button_secondary: lighten(get_color('text'), 30%), //same as text_light
 	button_disabled: #f2f5fc,
 	button_disabled_label: #6c757d,
+	button_link: #0080ff,
+	button_link_hover: lighten(#0080ff, 20%),
 
 	clean_logo: #5689F5,
 	clean_logo_gradient: linear-gradient(to right, #d5618c, #5689F5),
 	clean_logo_gradient_reverse: linear-gradient(to right, #5689F5, #d5618c),
+
+	configuration_status_processing: #3b82f6,
+	configuration_status_success: #22c55e,
+	configuration_status_warning: #f59e0b,
 
 	divider: #eee,
 

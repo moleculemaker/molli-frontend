@@ -10,6 +10,8 @@ import { NgHcaptchaModule } from 'ng-hcaptcha';
 
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ChipModule } from 'primeng/chip';
+import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -29,6 +31,7 @@ import { ClusterScatterplotComponent } from './components/molli/cluster-scatterp
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
 import { ResultsComponent } from './components/molli/results/results.component';
+import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
 
 import { EnvironmentService } from "./services/environment.service";
 
@@ -42,7 +45,8 @@ const initAppFn = (envService: EnvironmentService) => {
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
-    ResultsComponent
+    ResultsComponent,
+    StructureFileUploadComponent
   ],
   imports: [
     BrowserModule,
@@ -52,6 +56,8 @@ const initAppFn = (envService: EnvironmentService) => {
     HttpClientModule,
     ButtonModule,
     CheckboxModule,
+    ChipModule,
+    DialogModule,
     DropdownModule,
     InputTextareaModule,
     FileUploadModule,

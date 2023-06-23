@@ -9,7 +9,7 @@ import {NgHcaptchaService} from "ng-hcaptcha";
 import {BackendService, ExampleKey} from 'src/app/services/backend.service';
 import {TrackingService} from 'src/app/services/tracking.service';
 import {UserInfoService} from "src/app/services/user-info.service";
-import {JobPostData} from "../../../models";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-configuration',
@@ -21,7 +21,7 @@ export class ConfigurationComponent {
     return this.userInfoService.userInfo;
   }
 
-  userEmail: string;
+  userEmail: string = '';
   subscribeToEmail: boolean;
 
   disableCopyPaste = false; // can disable new jobs if traffic exceeds capacity
@@ -131,7 +131,6 @@ return true;
         );
     } else if (this.userInfoService.userInfo) {
       const data = this.parseUserInput();
-
       // User is logged in, send token cookie with request
       this.backendService.submitJob(data, this.userEmail.trim()).subscribe(
         (data) => this.router.navigate(['/results', data.jobId]),
@@ -139,7 +138,6 @@ return true;
       );
     } else {
       const data = this.parseUserInput();
-
       // User not logged in, send through hcaptcha
       this.hcaptchaService.verify().pipe(
         switchMap((token) => this.backendService.submitJob(data, this.userEmail.trim(), token))
@@ -150,10 +148,11 @@ return true;
     }
   }
 
-  // TODO: convert files to base64 string?
-  parseUserInput(): JobPostData {
-    const data: JobPostData = { cores: 'hello', subs: 'world' };
-    return data;
+  parseUserInput() {
+    const cores = this.fileUploadArray[0].uploadedFile;
+    const subs = this.fileUploadArray[1].uploadedFile;
+
+    return { cores, subs };
   }
 
   handleJobSubmissionError(error: any): void {

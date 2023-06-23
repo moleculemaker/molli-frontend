@@ -9,10 +9,12 @@ import {
   JobPostRequest,
   JobResult,
   JobStatus,
-  LibraryResults, JobPostData
+  LibraryResults,
+  JobFileData
 } from 'src/app/models';
 import { EnvVars } from "src/app/models/envvars";
 import { EnvironmentService } from "./environment.service";
+import {FormGroup} from "@angular/forms";
 
 @Injectable({
   providedIn: 'root'
@@ -32,13 +34,16 @@ export class BackendService {
     this.envs = this.envService.getEnvConfig();
   }
 
-  submitJob(data: JobPostData, user_email: string, captcha_token: string = ''): Observable<JobPostResponse>{
-    const payload: JobPostRequest = {
-      data,
-      user_email,
-      captcha_token
-    };
-    return this.http.post<JobPostResponse>(`${this.hostname}/${this.apiBasePath}/job/molli`, payload, { withCredentials: true }); //should return a jobID
+  submitJob(data: JobFileData, user_email: string, captcha_token: string = ''): Observable<JobPostResponse>{
+    const formData = new FormData();
+
+    formData.append('cores', data['cores']);
+    formData.append('subs', data['subs']);
+    formData.append('user_email', user_email);
+    formData.append('captcha_token', captcha_token);
+
+
+    return this.http.post<JobPostResponse>(`${this.hostname}/${this.apiBasePath}/job/molli`, formData, { withCredentials: true }); //should return a jobID
   }
 
   getJobStatus(jobId: string): Observable<JobStatus> {

@@ -36,9 +36,14 @@ export interface JobResult {
   results: LibraryResults;
 }
 
+export interface Structure {
+  mol2: string;
+  svg: string;
+}
+
 export interface LibraryResults {
   clusteringData: { [clusteringMode: string]: ClusteringData };
-  structures: { [structureName: string]: string };
+  structures: { [structureName: string]: Structure };
 }
 
 export type ClusterAssignmentObject = { [structureName: string]: number };

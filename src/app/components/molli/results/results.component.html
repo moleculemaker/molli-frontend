@@ -67,7 +67,7 @@
         <p-multiSelect [options]="clusters" [(ngModel)]="selectedClusters" (onChange)="onFormChanged('selectedClusters')"
                        defaultLabel="Select a Cluster" optionLabel="name" optionValue="value" display="chip"></p-multiSelect>
       </p-panel>
-      <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="5" [rowsPerPageOptions]="[5, 10,25,50]" [paginator]="true"
+      <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
                (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'name'" [sortOrder]="1"
                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
         <ng-template pTemplate="caption">
@@ -125,7 +125,7 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
             <td>{{row.name}}</td>
             <td>{{row.core}}</td>
             <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
-            <td><img [height]="200" [width]="200" [src]="row.stickPngUri$ | async"></td>
+            <td><div [innerHtml]="row.svg"></div></td>
             <td>{{row.cluster}}</td>
           </tr>
         </ng-template>

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { ActivatedRoute } from '@angular/router';
 import { of, timer, Observable, Subscription } from 'rxjs';
 import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
 
-import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus } from "src/app/models";
+import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
 import { ThreedmolPngService } from "src/app/services/threedmol-png.service";
 
@@ -53,6 +54,7 @@ export class ResultsComponent {
   selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
 
   constructor(
+    private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
     private backendService: BackendService,
     private threedmolPngService: ThreedmolPngService
@@ -113,8 +115,8 @@ export class ResultsComponent {
           this.allRows = [];
           this.updateClusterOptionsAndClearSelections();
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
-          Object.entries(result.results.structures).forEach(([name, mol2]) => {
-            this.allRows.push(generatedStructureToViewModel(name, mol2, currentClusterAssignmentObject, this.threedmolPngService));
+          Object.entries(result.results.structures).forEach(([name, structureData]) => {
+            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject, this.sanitizer, this.threedmolPngService));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
@@ -269,6 +271,7 @@ interface GeneratedStructureViewModel {
   core: string;
   substituents: Substituent[];
   mol2: string;
+  svg: SafeHtml;
   cluster: number;
   stickPngUri$: Observable<string>;
 }
@@ -278,7 +281,7 @@ interface Substituent {
   count: number;
 }
 
-function generatedStructureToViewModel(name: string, mol2: string, clusterAssignments: ClusterAssignmentObject, threedmolPngService: ThreedmolPngService): GeneratedStructureViewModel {
+function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject, sanitizer: DomSanitizer, threedmolPngService: ThreedmolPngService): GeneratedStructureViewModel {
   const separator = '_'; // TODO make configurable and/or change
   const namePieces = name.split(separator);
   const core = namePieces.shift()!;
@@ -286,7 +289,8 @@ function generatedStructureToViewModel(name: string, mol2: string, clusterAssign
     name,
     core,
     substituents: namePiecesToSubtituentArray(namePieces),
-    mol2,
+    mol2: structureData.mol2,
+    svg: sanitizer.bypassSecurityTrustHtml(structureData.svg),
     cluster: clusterAssignments[name],
     stickPngUri$: of('') // threedmolPngService.getPng(mol2, 'stick')
   };

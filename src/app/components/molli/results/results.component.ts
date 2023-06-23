@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { timer, Observable, Subscription } from 'rxjs';
+import { of, timer, Observable, Subscription } from 'rxjs';
 import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
 
 import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
+import { ThreedmolPngService } from "src/app/services/threedmol-png.service";
 
 @Component({
   selector: 'app-results',
@@ -51,7 +52,11 @@ export class ResultsComponent {
   allSubstituents: string[] = [];
   selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
 
-  constructor(private route: ActivatedRoute, private backendService: BackendService) {
+  constructor(
+    private route: ActivatedRoute,
+    private backendService: BackendService,
+    private threedmolPngService: ThreedmolPngService
+  ) {
     this.preComputedMessages = [
       { severity: 'info', detail: 'This is a pre-computed result for the example data. To see real-time computation, click the "Run a new Request" button and use the "Copy and Paste" input method.' },
     ];
@@ -109,7 +114,7 @@ export class ResultsComponent {
           this.updateClusterOptionsAndClearSelections();
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(result.results.structures).forEach(([name, mol2]) => {
-            this.allRows.push(generatedStructureToViewModel(name, mol2, currentClusterAssignmentObject));
+            this.allRows.push(generatedStructureToViewModel(name, mol2, currentClusterAssignmentObject, this.threedmolPngService));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
@@ -217,7 +222,6 @@ export class ResultsComponent {
   }
 
   customSort(event: SortEvent) {
-    console.log(event);
     const order = event.order || 1;
     if (event.field === 'name') {
       event.data?.sort((d1,d2) => order * d1[event.field!].localeCompare(d2[event.field!]));
@@ -266,6 +270,7 @@ interface GeneratedStructureViewModel {
   substituents: Substituent[];
   mol2: string;
   cluster: number;
+  stickPngUri$: Observable<string>;
 }
 
 interface Substituent {
@@ -273,7 +278,7 @@ interface Substituent {
   count: number;
 }
 
-function generatedStructureToViewModel(name: string, mol2: string, clusterAssignments: ClusterAssignmentObject): GeneratedStructureViewModel {
+function generatedStructureToViewModel(name: string, mol2: string, clusterAssignments: ClusterAssignmentObject, threedmolPngService: ThreedmolPngService): GeneratedStructureViewModel {
   const separator = '_'; // TODO make configurable and/or change
   const namePieces = name.split(separator);
   const core = namePieces.shift()!;
@@ -282,7 +287,8 @@ function generatedStructureToViewModel(name: string, mol2: string, clusterAssign
     core,
     substituents: namePiecesToSubtituentArray(namePieces),
     mol2,
-    cluster: clusterAssignments[name]
+    cluster: clusterAssignments[name],
+    stickPngUri$: of('') // threedmolPngService.getPng(mol2, 'stick')
   };
 }
 

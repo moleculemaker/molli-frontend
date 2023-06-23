@@ -8,7 +8,7 @@ import {
   SimpleChanges,
   ViewChild
 } from "@angular/core";
-import { $3DMolLoaderService } from "src/app/services/$3dmol-loader.service";
+import { ThreedmolLoaderService } from "src/app/services/threedmol-loader.service";
 import { combineLatest, BehaviorSubject, Subscription } from "rxjs";
 import { filter, first, map } from "rxjs/operators";
 
@@ -31,7 +31,7 @@ export class Molecule3dComponent implements AfterViewInit, OnChanges, OnDestroy 
   subscriptions: Subscription[] = [];
 
   constructor(
-    private $3dMolLoaderService: $3DMolLoaderService
+    private $3dMolLoaderService: ThreedmolLoaderService
   ) { }
 
   ngAfterViewInit(): void {
@@ -56,12 +56,12 @@ export class Molecule3dComponent implements AfterViewInit, OnChanges, OnDestroy 
     viewer.clear();
     viewer.addModel(data, 'mol2');
     if (this.mode === 'line') {
-      viewer.setStyle({}, { line: {} });
+      viewer.setStyle({}, { line: {}});
     } else {
-      viewer.setStyle({}, { stick: {} });
+      viewer.setStyle({}, { stick: {}});
     }
     viewer.zoomTo();
     viewer.render();
-    viewer.zoom(0.8, 2000);
+    // previously had viewer.zoom(0.8, 2000); for dramatic effect; could restore if adding single-molecule 3d viewer
   }
 }

@@ -54,9 +54,11 @@
           <div *ngFor="let option of numberOfClustersModeOptions" class="field-radiobutton">
             <p-radioButton [inputId]="option.key" name="numberOfClustersMode" [value]="option"
                            [(ngModel)]="numberOfClustersMode" (onClick)="onFormChanged('numberMode')"></p-radioButton>
-            <label [for]="option.key" class="ml-2">{{ option.name }}</label>
+            <label [for]="option.key" class="ml-2">{{ option.name }} <p-avatar [label]="option.number + ''" styleClass="mr-2"></p-avatar></label>
           </div>
         </div>
+        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClustersMode.number" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
+                                [distortions]="[10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]"></app-cluster-elbow-plot>
         <p class="mb-3">Cluster Visualization:</p>
         <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClustersMode.number"
                                  [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
@@ -111,8 +113,7 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
             <th pSortableColumn="substituents">Substituents
               <p-sortIcon field="substituents"></p-sortIcon>
             </th>
-            <!--<th>Structure</th>-->
-            <th>3D Structure</th>
+            <th>Structure</th>
             <th pSortableColumn="cluster">Cluster Identifier
               <p-sortIcon field="cluster"></p-sortIcon>
             </th>
@@ -124,8 +125,7 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
             <td>{{row.name}}</td>
             <td>{{row.core}}</td>
             <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
-            <!--<td><app-molecule3d [mol2data]="row.mol2" mode="line"></app-molecule3d></td>-->
-            <td><app-molecule3d *ngIf="false" [mol2data]="row.mol2" mode="stick"></app-molecule3d></td>
+            <td><img [height]="200" [width]="200" [src]="row.stickPngUri$ | async"></td>
             <td>{{row.cluster}}</td>
           </tr>
         </ng-template>

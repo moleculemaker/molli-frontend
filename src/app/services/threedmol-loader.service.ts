@@ -12,13 +12,13 @@ declare global {
 @Injectable({
   providedIn: "root"
 })
-export class $3DMolLoaderService {
-  private $3DMolSubject$: ReplaySubject<any> = new ReplaySubject<any>(1);
+export class ThreedmolLoaderService {
+  private ThreeDMolSubject$: ReplaySubject<any> = new ReplaySubject<any>(1);
 
   constructor() {
     interval(500).subscribe(() => {
       if (window.$3Dmol) {
-        this.$3DMolSubject$.next(window.$3Dmol);
+        this.ThreeDMolSubject$.next(window.$3Dmol);
       }
     });
   }
@@ -27,6 +27,6 @@ export class $3DMolLoaderService {
    * Returns an observable with the $3DMol module in it.
    */
   get3DMol(): Observable<any> {
-    return this.$3DMolSubject$.asObservable().pipe(first());
+    return this.ThreeDMolSubject$.asObservable().pipe(first());
   }
 }

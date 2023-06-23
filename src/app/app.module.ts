@@ -8,6 +8,7 @@ import { NgxMatomoTrackerModule } from '@ngx-matomo/tracker';
 import { NgxMatomoRouterModule } from '@ngx-matomo/router';
 import { NgHcaptchaModule } from 'ng-hcaptcha';
 
+import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
@@ -33,6 +34,7 @@ import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.co
 import { ResultsComponent } from './components/molli/results/results.component';
 
 import { EnvironmentService } from "./services/environment.service";
+import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot/cluster-elbow-plot.component';
 
 const initAppFn = (envService: EnvironmentService) => {
   return () => envService.loadEnvConfig('/assets/config/envvars.json');
@@ -45,7 +47,8 @@ const initAppFn = (envService: EnvironmentService) => {
     ConfigurationComponent,
     LandingPageComponent,
     Molecule3dComponent,
-    ResultsComponent
+    ResultsComponent,
+    ClusterElbowPlotComponent
   ],
   imports: [
     BrowserModule,
@@ -53,6 +56,7 @@ const initAppFn = (envService: EnvironmentService) => {
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+    AvatarModule,
     ButtonModule,
     CheckboxModule,
     DropdownModule,

@@ -10,6 +10,7 @@ import { NgHcaptchaModule } from 'ng-hcaptcha';
 
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
@@ -34,6 +35,7 @@ import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot
 import { ClusterScatterplotComponent } from './components/molli/cluster-scatterplot/cluster-scatterplot.component';
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
+import { Molecule2dComponent } from './components/molli/molecule2d/molecule2d.component';
 import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.component';
 import { ResultsComponent } from './components/molli/results/results.component';
 import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
@@ -51,6 +53,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
+    Molecule2dComponent,
     Molecule3dComponent,
     ResultsComponent,
     StructureFileUploadComponent
@@ -63,6 +66,7 @@ const initAppFn = (envService: EnvironmentService) => {
     HttpClientModule,
     AvatarModule,
     ButtonModule,
+    CardModule,
     CheckboxModule,
     ChipModule,
     DialogModule,

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { ActivatedRoute } from '@angular/router';
-import { of, timer, Observable, Subscription } from 'rxjs';
+import { timer, Observable, Subscription } from 'rxjs';
 import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
@@ -32,7 +31,7 @@ export class ResultsComponent {
   filteredRows: GeneratedStructureViewModel[] = [];
 
   clusteringMethodOptions = [
-    { name: 't-SNE (Default)', key: 'tsne' },
+    { name: 't-SNE', key: 'tsne' },
     { name: 'PCA', key: 'pca' }
   ];
   clusteringMethod = this.clusteringMethodOptions[0];
@@ -46,8 +45,10 @@ export class ResultsComponent {
   allSubstituents: string[] = [];
   selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
 
+  isStructureDialogOpen = false;
+  structureForDialog: GeneratedStructureViewModel|null;
+
   constructor(
-    private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
     private backendService: BackendService
   ) {
@@ -109,7 +110,7 @@ export class ResultsComponent {
           this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(result.results.structures).forEach(([name, structureData]) => {
-            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject, this.sanitizer));
+            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
@@ -246,6 +247,11 @@ export class ResultsComponent {
     document.body.removeChild(selBox);
   }
 
+  openStructureDialog(structure: GeneratedStructureViewModel): void {
+    this.structureForDialog = structure;
+    this.isStructureDialogOpen = true;
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
@@ -262,7 +268,7 @@ interface GeneratedStructureViewModel {
   core: string;
   substituents: Substituent[];
   mol2: string;
-  svg: SafeHtml;
+  svg: string;
   cluster: number;
 }
 
@@ -271,7 +277,7 @@ interface Substituent {
   count: number;
 }
 
-function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject, sanitizer: DomSanitizer): GeneratedStructureViewModel {
+function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject): GeneratedStructureViewModel {
   const separator = '_'; // TODO make configurable and/or change
   const namePieces = name.split(separator);
   const core = namePieces.shift()!;
@@ -280,7 +286,7 @@ function generatedStructureToViewModel(name: string, structureData: Structure, c
     core,
     substituents: namePiecesToSubtituentArray(namePieces),
     mol2: structureData.mol2,
-    svg: sanitizer.bypassSecurityTrustHtml(structureData.svg),
+    svg: structureData.svg,
     cluster: clusterAssignments[name]
   };
 }

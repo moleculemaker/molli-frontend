@@ -16,6 +16,11 @@ svg {
   font-size: 10px;
   font-weight: 200;
   opacity: 0.5;
+
+  &.selected {
+    font-weight: 500;
+    opacity: 1;
+  }
 }
 
 .point {

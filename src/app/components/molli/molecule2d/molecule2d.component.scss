@@ -1,3 +1,5 @@
 .svg_container {
-  display: block;
+  ::ng-deep svg {
+    display: block;
+  }
 }

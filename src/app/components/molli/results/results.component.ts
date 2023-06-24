@@ -8,7 +8,6 @@ import { Message, SortEvent } from 'primeng/api';
 
 import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
-import { ThreedmolPngService } from "src/app/services/threedmol-png.service";
 
 @Component({
   selector: 'app-results',
@@ -56,8 +55,7 @@ export class ResultsComponent {
   constructor(
     private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
-    private backendService: BackendService,
-    private threedmolPngService: ThreedmolPngService
+    private backendService: BackendService
   ) {
     this.preComputedMessages = [
       { severity: 'info', detail: 'This is a pre-computed result for the example data. To see real-time computation, click the "Run a new Request" button and use the "Copy and Paste" input method.' },
@@ -116,7 +114,7 @@ export class ResultsComponent {
           this.updateClusterOptionsAndClearSelections();
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(result.results.structures).forEach(([name, structureData]) => {
-            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject, this.sanitizer, this.threedmolPngService));
+            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject, this.sanitizer));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
@@ -277,7 +275,6 @@ interface GeneratedStructureViewModel {
   mol2: string;
   svg: SafeHtml;
   cluster: number;
-  stickPngUri$: Observable<string>;
 }
 
 interface Substituent {
@@ -285,7 +282,7 @@ interface Substituent {
   count: number;
 }
 
-function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject, sanitizer: DomSanitizer, threedmolPngService: ThreedmolPngService): GeneratedStructureViewModel {
+function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject, sanitizer: DomSanitizer): GeneratedStructureViewModel {
   const separator = '_'; // TODO make configurable and/or change
   const namePieces = name.split(separator);
   const core = namePieces.shift()!;
@@ -295,8 +292,7 @@ function generatedStructureToViewModel(name: string, structureData: Structure, c
     substituents: namePiecesToSubtituentArray(namePieces),
     mol2: structureData.mol2,
     svg: sanitizer.bypassSecurityTrustHtml(structureData.svg),
-    cluster: clusterAssignments[name],
-    stickPngUri$: of('') // threedmolPngService.getPng(mol2, 'stick')
+    cluster: clusterAssignments[name]
   };
 }
 

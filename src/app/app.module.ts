@@ -26,6 +26,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -76,8 +77,9 @@ const initAppFn = (envService: EnvironmentService) => {
     ProgressBarModule,
     SelectButtonModule,
     SkeletonModule,
-    TableModule,
     RadioButtonModule,
+    TableModule,
+    TooltipModule,
     NgxMatomoTrackerModule.forRoot({
       siteId: 4,
       trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'

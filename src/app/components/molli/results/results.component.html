@@ -49,23 +49,13 @@
             <label [for]="option.key" class="ml-2">{{ option.name }}</label>
           </div>
         </div>
-        <p class="mt-5 mb-3">Number of Clusters:</p>
-        <div class="formgroup-inline">
-          <div *ngFor="let option of numberOfClustersModeOptions" class="field-radiobutton">
-            <p-radioButton [inputId]="option.key" name="numberOfClustersMode" [value]="option"
-                           [(ngModel)]="numberOfClustersMode" (onClick)="onFormChanged('numberMode')"></p-radioButton>
-            <label [for]="option.key" class="ml-2">{{ option.name }} <p-avatar [label]="option.number + ''" styleClass="mr-2"></p-avatar></label>
-          </div>
-        </div>
-        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClustersMode.number" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
-                                [distortions]="getCurrentClusteringData().distortions"></app-cluster-elbow-plot>
+        <p class="mt-5 mb-3">Number of Clusters: <p-avatar [label]="numberOfClusters + ''" styleClass="mr-2" [pTooltip]="'Change the number of clusters by clicking on the plot below'"></p-avatar></p>
+        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
+                                [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
         <p class="mb-3">Cluster Visualization:</p>
-        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClustersMode.number"
+        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
                                  [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
 
-        <p class="mb-3">Selected Clusters:</p>
-        <p-multiSelect [options]="clusters" [(ngModel)]="selectedClusters" (onChange)="onFormChanged('selectedClusters')"
-                       defaultLabel="Select a Cluster" optionLabel="name" optionValue="value" display="chip"></p-multiSelect>
       </p-panel>
       <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
                (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'name'" [sortOrder]="1"

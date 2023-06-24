@@ -37,14 +37,8 @@ export class ResultsComponent {
   ];
   clusteringMethod = this.clusteringMethodOptions[0];
 
-  // TODO update number field here
-  numberOfClustersModeOptions = [
-    { name: 'Elbow Value (Default)', key: 'elbow', number: -1 },
-    { name: 'Custom', key: 'custom', number: 1 }
-  ];
-  numberOfClustersMode = this.numberOfClustersModeOptions[0];
-
-  clusters: ClusterSelection[] = [];
+  defaultNumberOfClusters: number;
+  numberOfClusters: number;
   selectedClusters: number[] = []; // note that when filtering, an empty array will be treated as if the user had selected all clusters
 
   allCores: string[] = [];
@@ -106,12 +100,13 @@ export class ResultsComponent {
       ).subscribe(
         (result) => {
           this.result = result;
-          this.numberOfClustersModeOptions.forEach(option => {
-            const clusteringData = this.getClusteringDataForMode(option.key as ClusteringMode);
-            option.number = clusteringData.defaultNumberOfClusters;
-          });
+          // note the default number of clusters is the same regardless of dimensionality reduction technique
+          // in fact, the choice of dimensionality reduction technique will only affect the scatterplot coordinates, not
+          // any of the other clustering data
+          this.defaultNumberOfClusters = this.getCurrentClusteringData().defaultNumberOfClusters;
+          this.numberOfClusters = this.defaultNumberOfClusters;
           this.allRows = [];
-          this.updateClusterOptionsAndClearSelections();
+          this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(result.results.structures).forEach(([name, structureData]) => {
             this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject, this.sanitizer));
@@ -139,15 +134,7 @@ export class ResultsComponent {
   }
 
   getCurrentClusterAssignmentObject(): ClusterAssignmentObject {
-    return this.getCurrentClusteringData().clusterAssignments[this.numberOfClustersMode.number];
-  }
-
-  updateClusterOptionsAndClearSelections(): void {
-    this.clusters = [];
-    for (let i = 0; i < this.numberOfClustersMode.number; i++) {
-      this.clusters.push({ name: 'Cluster ' + i, value : i});
-    }
-    this.selectedClusters = [];
+    return this.getCurrentClusteringData().clusterAssignments[this.numberOfClusters];
   }
 
   updateAllCoresAndSubstituentsAndClearSelections(): void {
@@ -166,8 +153,7 @@ export class ResultsComponent {
   }
 
   onNumberOfClustersChanged(newNumber: number): void {
-    this.numberOfClustersMode = this.numberOfClustersModeOptions.find(option => option.key === 'custom')!;
-    this.numberOfClustersMode.number = newNumber;
+    this.numberOfClusters = newNumber;
     this.onFormChanged('number');
   }
 
@@ -176,7 +162,7 @@ export class ResultsComponent {
     if (field === 'selectedClusters') {
       this.filterTable();
     } else if (field === 'method' || field === 'numberMode' || field === 'number') {
-      this.updateClusterOptionsAndClearSelections();
+      this.selectedClusters = [];
       this.updateClusterAssignments();
       this.filterTable();
     } else {
@@ -193,7 +179,10 @@ export class ResultsComponent {
 
   filterTable() {
     // create an array to look up cluster status
-    const clusterLookup = this.clusters.map(cluster => this.selectedClusters.length === 0 || this.selectedClusters.includes(cluster.value));
+    const clusterLookup: boolean[] = [];
+    for (let i = 0; i < this.numberOfClusters; i++) {
+      clusterLookup.push(this.selectedClusters.length === 0 || this.selectedClusters.includes(i));
+    }
     // create sets to look up cores and substituents
     const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
     const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);

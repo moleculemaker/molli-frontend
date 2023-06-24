@@ -53,11 +53,13 @@ export class BackendService {
     return this.http.get<JobStatus>(`${this.hostname}/${this.apiBasePath}/job/molli/${jobId}`, { withCredentials: true });
   }
 
-  getJobResult(jobId: string): Observable<JobResult> {
+  getJobResult(jobId: string, fileName: string = ''): Observable<JobResult> {
     if (this.isExampleJob(jobId)) {
       return this.getExampleJobResult(jobId as ExampleKey);
     }
-    return this.http.get<JobResult>(`${this.hostname}/${this.apiBasePath}/job/molli/results/${jobId}`, { withCredentials: true });
+    const fileNameParamSuffix = fileName ? `${fileName}}` : '';
+    const url = `${this.hostname}/${this.apiBasePath}/job/molli/${jobId}/results/${fileNameParamSuffix}`;
+    return this.http.get<JobResult>(url, { withCredentials: true });
   }
 
   addEmail(userEmail: string): Observable<EmailPostResponse>{

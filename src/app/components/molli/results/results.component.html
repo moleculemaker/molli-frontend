@@ -8,8 +8,9 @@
         </h3>
 
         <div class="details">
-          <!-- TODO replace job information -->
-          <div class="sequence_count">FIXME</div>
+          <!-- TODO replace counts with filenames and rename css classes -->
+          <div class="sequence_count">Number of cores: {{ allCores.length }}</div>
+          <div class="sequence_count">Number of substituents: {{ allSubstituents.length }}</div>
           <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
         </div>
       </div>

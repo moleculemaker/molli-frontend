@@ -46,16 +46,12 @@
         <p class="mt-2 mb-3">Number of Clusters: <p-inputNumber [(ngModel)]="numberOfClusters" [min]="1" [max]="maxNumberOfClusters" [inputStyle]="{ width: '2.5rem', padding: '0.3rem 0.6rem', 'text-align': 'right' }" [pTooltip]="'Change the number of clusters with this control or by clicking on the plot below'" (change)="onNumberOfClustersChanged(numberOfClusters)"></p-inputNumber></p>
         <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
                                 [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
-        <p class="mt-5 mb-3">Clustering Visualization:</p>
-        <div class="formgroup-inline">
-          <div *ngFor="let option of clusteringMethodOptions" class="field-radiobutton">
-            <p-radioButton [inputId]="option.key" name="clusteringMethod" [value]="option"
-                           [(ngModel)]="clusteringMethod" (onClick)="onFormChanged('method')"></p-radioButton>
-            <label [for]="option.key" class="ml-2">{{ option.name }}</label>
-          </div>
+        <div class="mt-5 mb-3 flex align-content-center gap-2">
+          <p class="flex align-items-center">Cluster Visualization:</p>
+          <p-selectButton [options]="clusteringMethodOptions" styleClass="clustering_mode_selector" [(ngModel)]="clusteringMethod" optionLabel="name" (onChange)="onFormChanged('method')"></p-selectButton>
         </div>
         <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
-                                 [structureDetails]="allRows"
+                                 [structureDetails]="allRows" [mode]="$any(clusteringMethod.key)"
                                  [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
       </p-panel>
       <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"

@@ -1,6 +1,16 @@
+<div class="legend">
+  <div class="title">Cluster Label</div>
+  <div *ngFor="let exemplar of exemplars; let i = index" class="field-checkbox" [pTooltip]="exemplar.tooltipContent" [escape]="false" tooltipStyleClass="structure_tooltip">
+    <p-checkbox name="group" [value]="i" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+i" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox>
+    <label [for]="'cluster'+i"><p-avatar [style]="{ 'background-color': exemplar.point.color }" shape="circle"></p-avatar><div class="cluster_number">{{ i }}</div></label>
+  </div>
+</div>
 <svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" preserveAspectRatio="none">
+  <!-- background -->
   <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"></rect>
-  <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="2" [attr.fill]="point.color"></circle>
+  <!-- points -->
+  <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="4" [attr.fill]="point.color"></circle>
+  <!-- TODO exemplars -->
   <g *ngFor="let exemplar of exemplars" class="exemplar" [attr.transform]="'translate(' + exemplar.point.x + ',' + exemplar.point.y + ')'">
     <rect [class.selected]="exemplar.isSelected"
           [attr.width]="exemplarBoxSize" [attr.height]="exemplarBoxSize"

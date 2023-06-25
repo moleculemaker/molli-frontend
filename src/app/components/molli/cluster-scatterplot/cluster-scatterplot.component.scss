@@ -1,3 +1,7 @@
+:host {
+  position: relative;
+}
+
 svg {
   display: block;
 }
@@ -28,3 +32,67 @@ svg {
     pointer-events: none; // prevent text element from interfering with hover/click on rect element
   }
 }
+
+.legend {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+
+  padding: 7px 11px;
+
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+
+  font-size: 10px;
+
+  ::ng-deep .field-checkbox {
+    margin: 1px 0;
+
+    .p-checkbox {
+      height: 11px;
+      width: 11px;
+
+      .p-checkbox-box {
+        height: 11px;
+        width: 11px;
+        border-width: 1px;
+        border-radius: 0;
+
+        &:hover {
+          border-color: #6C757D;
+        }
+        &.p-highlight {
+          border-color: #6C757D;
+          background-color: #6C757D;
+        }
+        &.p-focus, &.p-highlight {
+          box-shadow: none;
+        }
+
+        .p-checkbox-icon {
+          font-size: 9px;
+        }
+      }
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    .p-avatar-circle {
+      vertical-align: middle;
+      width: 10px;
+      height: 10px;
+    }
+
+    .cluster_number {
+      display: inline-block;
+      padding-left: 5px;
+      position: relative;
+      top: 1px;
+    }
+  }
+}
+
+// note .structure_tooltip has to be styled in the global styles file

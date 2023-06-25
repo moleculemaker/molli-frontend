@@ -3,6 +3,7 @@ import { extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 
 import { ClusteringData } from "../../../models";
+import { GeneratedStructureViewModel } from "../results/results.component";
 
 @Component({
   selector: 'app-cluster-scatterplot',
@@ -15,6 +16,9 @@ export class ClusterScatterplotComponent implements OnChanges {
   data?: ClusteringData;
 
   @Input()
+  structureDetails: GeneratedStructureViewModel[];
+
+  @Input()
   numberOfClusters?: number;
 
   @Input()
@@ -23,15 +27,15 @@ export class ClusterScatterplotComponent implements OnChanges {
   selectedClusterIndicesChange = new EventEmitter<number[]>();
 
   viewBox = {
-    height: 270,
-    width: 427
+    height: 392,
+    width: 506
   };
 
   margins = {
-    top: 10,
-    right: 10,
-    bottom: 10,
-    left: 10
+    top: 20,
+    right: 20,
+    bottom: 20,
+    left: 140
   };
 
   exemplarBoxSize = 20;
@@ -55,7 +59,9 @@ export class ClusterScatterplotComponent implements OnChanges {
 
   draw(): void {
     this.points = [];
-    if (this.data && this.numberOfClusters && this.data.clusterAssignments[this.numberOfClusters]) {
+    if (this.data && this.numberOfClusters && this.data.clusterAssignments[this.numberOfClusters] && this.structureDetails) {
+      // create map from structure name to structure
+      const structureNameToStructure = new Map<string, GeneratedStructureViewModel>(this.structureDetails.map(structure => [structure.name, structure]));
       // create x scale and y scale
       const xExtent = extent(Object.values(this.data.coordinates['0'])) as [number, number];
       const yExtent = extent(Object.values(this.data.coordinates['1'])) as [number, number];
@@ -80,9 +86,10 @@ export class ClusterScatterplotComponent implements OnChanges {
         return {
           point,
           clusterIndex,
-          isSelected: this.selectedClusterIndices.includes(clusterIndex)
+          isSelected: this.selectedClusterIndices.includes(clusterIndex),
+          tooltipContent: '<h2>Cluster ' + clusterIndex + '</h2><hr><h3>Exemplar: ' + point.name + '</h3>' + structureNameToStructure.get(point.name)!.svg
         };
-      });
+      }).sort((e1, e2) => e1.clusterIndex - e2.clusterIndex); // template assumes exemplars are sorted in cluster order
     }
   }
 
@@ -104,4 +111,5 @@ interface Exemplar {
   point: Point;
   clusterIndex: number;
   isSelected: boolean;
+  tooltipContent: string;
 }

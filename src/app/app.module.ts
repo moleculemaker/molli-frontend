@@ -16,7 +16,7 @@ import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { MenuModule } from "primeng/menu";
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -71,7 +71,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ChipModule,
     DialogModule,
     DropdownModule,
-    InputTextareaModule,
+    InputNumberModule,
     FileUploadModule,
     MessagesModule,
     MenuModule,

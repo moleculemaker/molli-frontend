@@ -159,10 +159,13 @@ export class ResultsComponent {
   }
 
   // TODO change form to reactive
-  onFormChanged(field: 'method'|'numberMode'|'number'|'selectedClusters'): void {
+  onFormChanged(field: 'method'|'number'|'selectedClusters'): void {
     if (field === 'selectedClusters') {
       this.filterTable();
-    } else if (field === 'method' || field === 'numberMode' || field === 'number') {
+    } else if (field === 'method') {
+      // currently, changing method only affects the scatterplot coordinates, not cluster assignments, etc.
+      // if that ever changes this, could handle it as we now handle the 'number' case below
+    } else if (field === 'number') {
       this.selectedClusters = [];
       this.updateClusterAssignments();
       this.filterTable();
@@ -263,7 +266,7 @@ export interface ClusterSelection {
   value: number;
 }
 
-interface GeneratedStructureViewModel {
+export interface GeneratedStructureViewModel {
   name: string;
   core: string;
   substituents: Substituent[];

@@ -44,7 +44,10 @@ export class ClusterScatterplotComponent implements OnChanges {
     left: 40
   };
 
-  exemplarBoxSize = 20;
+  pointRadius = 5;
+  starOffset = 6.5;
+  // from https://codepen.io/osublake/pen/LVLvKv, using points = 5, inner radius = 4, outer radius = 7
+  starPoints = '7,0,9.351141009169893,3.76393202250021,13.657395614066075,4.836881039375368,10.804226065180615,8.23606797749979,11.114496766047314,12.663118960624631,7.000000000000001,11,2.885503233952689,12.663118960624633,3.195773934819386,8.23606797749979,0.3426043859339245,4.83688103937537,4.648858990830107,3.7639320225002106';
 
   points: Point[] = [];
   clusters: Cluster[] = [];

@@ -10,10 +10,21 @@
     <svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" [style.height.px]="viewBox.height" [style.width.px]="viewBox.width" preserveAspectRatio="none">
       <!-- background -->
       <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"/>
-      <!-- points -->
-      <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="5" [attr.fill]="point.cluster.color" (mouseenter)="highlightCluster(point.cluster, point)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== point.cluster"/>
+      <!-- non-exemplar points -->
+      <ng-container *ngFor="let point of points">
+        <circle *ngIf="point !== point.cluster.exemplar"
+          [attr.cx]="point.x" [attr.cy]="point.y" [attr.r]="pointRadius"
+          [attr.fill]="point.cluster.color" [class.faded]="highlightedCluster !== null && highlightedCluster !== point.cluster"
+          [class.highlighted]="highlightedPoint === point"
+          (mouseenter)="highlightCluster(point.cluster, point)" (mouseleave)="unhighlightCluster()" />
+      </ng-container>
       <!-- exemplars, which should be rendered above other points -->
-      <circle *ngFor="let cluster of clusters" class="exemplar" [attr.cx]="cluster.exemplar.x" [attr.cy]="cluster.exemplar.y" r="5" [attr.fill]="cluster.color" (mouseenter)="highlightCluster(cluster, cluster.exemplar)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster"/>
+      <g *ngFor="let cluster of clusters" [attr.transform]="'translate(' + (cluster.exemplar.x - starOffset) + ',' + (cluster.exemplar.y - starOffset) + ')'">
+        <polygon [attr.points]="starPoints"
+          [attr.fill]="cluster.color" [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster"
+          [class.highlighted]="highlightedCluster === cluster && (highlightedPoint === null || highlightedPoint === cluster.exemplar)"
+          (mouseenter)="highlightCluster(cluster, cluster.exemplar)" (mouseleave)="unhighlightCluster()"/>
+      </g>
       <!-- axis labels -->
       <g [attr.transform]="'translate(' + (margins.left * 0.5 - 4) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
         <text class="axis" text-anchor="middle" [attr.transform]="'rotate(-90)'">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 2</text>

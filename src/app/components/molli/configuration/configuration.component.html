@@ -47,20 +47,21 @@
                         <ng-template pTemplate="body" let-file>
                             <tr *ngIf="file.uploadedFile">
                                 <td class="column_filename">{{ file.uploadedFile.name }}</td>
-                                <td class="column_size">{{ file.uploadedFile.size }} bytes</td>
+                                <td class="column_size">{{ file.uploadedFile.size | bytes }}</td>
                                 <td class="column_type">{{ file.type }}</td>
                                 <td class="column_status">
-<!-- todo: remove (click) as this was to fake the processing in the backend -->
-                                    <p-chip label="Processing" icon="pi pi-spin pi-spinner" styleClass="status_processing" *ngIf="file.status == 'processing'" (click)="file.status = 'success'"></p-chip>
-                                    <p-chip label="Success" icon="pi pi-check" styleClass="status_success" *ngIf="file.status == 'success'" (click)="file.status = 'warning'"></p-chip>
-                                    <p-chip label="Warning" icon="pi pi-exclamation-triangle" styleClass="status_warning" *ngIf="file.status == 'warning'" (click)="file.status = 'processing'"></p-chip>
+<!-- todo: remove hardcoded true/false in ngIf expressions here once validation is possible -->
+                                    <p-chip label="Processing" icon="pi pi-spin pi-spinner" styleClass="status_processing" *ngIf="false && file.status == 'processing'"></p-chip>
+                                    <p-chip label="Success" icon="pi pi-check" styleClass="status_success" *ngIf="true || file.status == 'success'"></p-chip>
+                                    <p-chip label="Warning" icon="pi pi-exclamation-triangle" styleClass="status_warning" *ngIf="false && file.status == 'warning'"></p-chip>
                                 </td>
                                 <td class="column_status_details" [innerHTML]="file.status_details"></td>
                                 <td class="column_action">
                                     <div class="flex align-center gap-2">
-                                        <p-button icon="pi pi-eye" styleClass="p-button-rounded p-button-text" (click)="reviewResults(file)" pTooltip="Review Results" tooltipPosition="top"></p-button>
-                                        <p-button icon="pi pi-undo" styleClass="p-button-rounded p-button-text" pTooltip="Undo" tooltipPosition="top"></p-button>
-                                        <p-button icon="pi pi-times" styleClass="p-button-rounded p-button-text" pTooltip="Delete" tooltipPosition="top"></p-button>
+                                      <!-- TODO remove ngIf-ed out cases here once available -->
+                                        <p-button *ngIf="false" icon="pi pi-eye" styleClass="p-button-rounded p-button-text" (click)="reviewResults(file)" pTooltip="Review Results" tooltipPosition="top"></p-button>
+                                        <p-button *ngIf="false" icon="pi pi-undo" styleClass="p-button-rounded p-button-text" pTooltip="Undo" tooltipPosition="top"></p-button>
+                                        <p-button icon="pi pi-times" styleClass="p-button-rounded p-button-text" (click)="file.uploadedFile = null" pTooltip="Delete" tooltipPosition="top"></p-button>
                                     </div>
                                 </td>
                             </tr>
@@ -82,31 +83,38 @@
                 </ng-container>
 
                 <ng-container *ngIf="selectedInputMethod == 'use_example'">
-                    <div class="panel_bar">
-                        <h3>Example</h3>
-
-                        <!-- <div *ngFor="let example of exampleData">
-                            <p-radioButton name="example" [value]="example.label" [(ngModel)]="selectedExample" [inputId]="example.label" (onClick)="selectExample()"></p-radioButton>
-                            <label [for]="example.label" class="label">{{example.label}}</label>
-                        </div> -->
-
-                      <!-- TODO replace
-                        <p-selectButton [options]="exampleData" [(ngModel)]="selectedExample"
-                            (onOptionClick)="selectExample()">
-                            <ng-template let-item>
-                                {{item.label}}
-                            </ng-template>
-                        </p-selectButton>
-                        -->
+                  <div class="panel_bar">
+                    <div class="py-3">
+                      <h3>Example Data</h3>
+                      <div>
+                        The following pre-loaded example files will be used.
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="example_data">
-                      <!-- TODO replace
-                        <ng-container *ngIf="selectedExample">
-                            <div *ngFor="let line of selectedExample.data.split('\n')">{{line}}</div>
-                        </ng-container>
-                        -->
-                    </div>
+                  <p-table [value]="exampleFileArray" class="file_upload_table">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th class="column_filename">Filename</th>
+                        <th class="column_size">Size</th>
+                        <th class="column_type">Type</th>
+                        <th class="column_status">Status</th>
+                        <th class="column_status_details">Status Details</th>
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-file>
+                      <tr>
+                        <td class="column_filename">{{ file.uploadedFile.name }}</td>
+                        <td class="column_size">{{ file.uploadedFile.size | bytes }}</td>
+                        <td class="column_type">{{ file.type }}</td>
+                        <td class="column_status">
+                          <p-chip label="Success" icon="pi pi-check" styleClass="status_success" *ngIf="file.status == 'success'"></p-chip>
+                        </td>
+                        <td class="column_status_details" [innerHTML]="file.status_details"></td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
                 </ng-container>
             </div>
 

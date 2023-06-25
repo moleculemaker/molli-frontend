@@ -36,6 +36,7 @@ export class ConfigurationComponent {
   selectedInputMethod: any | null = 'copy_and_paste'; //this.inputMethods[0];
 
   fileUploadArray: any[] = []; //master list of files needing to be uploaded to the server (and stores results once completed)
+  exampleFileArray: any[] = []; //master list of files for example case
   selectedFileToReview: any|null = null;
 
   constructor(
@@ -76,8 +77,12 @@ export class ConfigurationComponent {
       ]},
 */
     this.fileUploadArray = [
-      {type: 'core', status: 'processing', status_details: 'Checking for structures...', uploadedFile: null},
-      {type: 'substituent', status: 'processing', status_details: 'Checking for structures...', uploadedFile: null},
+      {type: 'core', status: 'processing', status_details: 'Ready for execution', uploadedFile: null},
+      {type: 'substituent', status: 'processing', status_details: 'Ready for execution', uploadedFile: null}
+    ];
+    this.exampleFileArray = [
+      {type: 'core', status: 'success', status_details: 'Ready for execution', uploadedFile: {name: 'cores_example1.cdxml', size: 36742}},
+      {type: 'substituent', status: 'success', status_details: 'Ready for execution', uploadedFile: {name: 'substituents_example1.cdxml', size: 33088}}
     ];
   }
 

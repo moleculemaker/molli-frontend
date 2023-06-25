@@ -16,10 +16,9 @@ import { BackendService } from 'src/app/services/backend.service';
 export class ResultsComponent {
   subscriptions: Subscription[] = [];
 
-  jobId$: Observable<string|null>;
+  jobId: string;
   status$: Observable<JobStatus>;
   result: JobResult | null = null;
-  downloadRows: string[][] = [['Identifier', 'Predicted EC Number', 'Confidence Level']];
 
   // TODO later: clean up messages code
   isFailed: boolean = false;
@@ -38,6 +37,7 @@ export class ResultsComponent {
 
   defaultNumberOfClusters: number;
   numberOfClusters: number;
+  maxNumberOfClusters: number;
   selectedClusters: number[] = []; // note that when filtering, an empty array will be treated as if the user had selected all clusters
 
   allCores: string[] = [];
@@ -47,6 +47,11 @@ export class ResultsComponent {
 
   isStructureDialogOpen = false;
   structureForDialog: GeneratedStructureViewModel|null;
+
+  downloadOptions = [
+    { label: 'Current View', command: () => this.downloadResult('current') },
+    { label: 'Complete Results', command: () => this.downloadResult('complete') }
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -59,11 +64,12 @@ export class ResultsComponent {
       { severity: 'error', detail: 'Job failed possibly due to incorrect input or intermittent issues. Please use the "Run a new Request" button above to try again, or click the feedback link at the bottom of the page to report a problem.'}
     ]
 
-    this.jobId$ = this.route.paramMap.pipe(
+    const jobId$ = this.route.paramMap.pipe(
       map(paramMap => paramMap.get('jobId'))
     );
-    this.subscriptions.push(this.jobId$.subscribe(
+    this.subscriptions.push(jobId$.subscribe(
       (jobId) => {
+        this.jobId = jobId || 'N/A';
         if (!jobId) {
           this.isFailed;
           this.jobFailedMessages[0].detail = 'The URL does not contain a job id. Please check the link you followed to open this page, or use the "Run a New Request" button above to try again.';
@@ -73,7 +79,7 @@ export class ResultsComponent {
 
     // finalStatus$ is an observable of the job status that will only emit a value representing the completed or failed state
     // the implementation polls the backend until the completed or failed state is reached
-    const finalStatus$ = this.jobId$.pipe(
+    const finalStatus$ = jobId$.pipe(
       filter(jobId => !!jobId),
       switchMap((jobId) => this.backendService.getJobStatus(jobId!)),
       map((status) => {
@@ -104,8 +110,10 @@ export class ResultsComponent {
           // note the default number of clusters is the same regardless of dimensionality reduction technique
           // in fact, the choice of dimensionality reduction technique will only affect the scatterplot coordinates, not
           // any of the other clustering data
-          this.defaultNumberOfClusters = this.getCurrentClusteringData().defaultNumberOfClusters;
+          const clusteringData = this.getCurrentClusteringData();
+          this.defaultNumberOfClusters = clusteringData.defaultNumberOfClusters;
           this.numberOfClusters = this.defaultNumberOfClusters;
+          this.maxNumberOfClusters = clusteringData.distortions.length;
           this.allRows = [];
           this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
@@ -131,6 +139,8 @@ export class ResultsComponent {
   }
 
   getCurrentClusteringData(): ClusteringData {
+    // TODO remove? we aren't actually switching between clustering modes as I thought we might be
+    // instead, switching between pca and tsne is just updating the coordinates used in the scatterplot, not cluster assignments
     return this.getClusteringDataForMode(this.clusteringMethod.key as ClusteringMode);
   }
 
@@ -193,29 +203,41 @@ export class ResultsComponent {
     this.filteredRows = this.allRows.filter(row => clusterLookup[row.cluster] && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
   }
 
-  downloadResult(): void {
-    /*
-    this.downloadRows = [['Identifier', 'Predicted EC Number', 'Confidence Level']];
-    this.filteredResult.forEach(row => {
-      // let temp: string[] = [];
-      row.ecNumbers.forEach((num, index) => {
-        this.downloadRows.push([row.sequence, num,row.level[index]]);
-      })
-      // this.downloadRows.push(temp);
-    });
-    // console.log(this.downloadRows);
+  downloadResult(mode: 'current'|'complete'): void {
+    const downloadRows: string[][] = [];
+    const convertSubstituents = (row: GeneratedStructureViewModel): string => {
+      return '"' + row.substituents.map(subst => subst.label).join(',') + '"';
+    };
+    const convertSvg = (row: GeneratedStructureViewModel): string => {
+      return '"' + row.svg.replaceAll('"', '""').replaceAll('\n', '') + '"';
+    };
+    if (mode === 'current') {
+      downloadRows.push(['Generated Name', 'Core', 'Substituents', 'Structure (SVG)', 'Cluster Identifier (k=' + this.numberOfClusters + ')']);
+      this.filteredRows.forEach(row => {
+        downloadRows.push([row.name, row.core, convertSubstituents(row), convertSvg(row), row.cluster + '']);
+      });
+    } else {
+      const clusterIndices: number[] = [];
+      const clusteringData = this.getCurrentClusteringData();
+      for (let i = 1; i <= this.maxNumberOfClusters; i++) {
+        clusterIndices.push(i);
+      }
+      downloadRows.push(['Generated Name', 'Core', 'Substituents', 'Structure (SVG)', ...clusterIndices.map(k => 'Cluster Identifier (k=' + k + ')')]);
+      this.allRows.forEach(row => {
+        downloadRows.push([row.name, row.core, convertSubstituents(row), convertSvg(row), ...clusterIndices.map(k => clusteringData.clusterAssignments[k][row.name] + '')]);
+      });
+    }
 
-    let csvContent = this.downloadRows.map(e => e.join(",")).join("\n");
-    // console.log(csvContent);
+    const csvContent = downloadRows.map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    var anchor = document.createElement("a");
-    anchor.download = 'CLEAN_Result_' + this.sendJobID + '.csv';
-    // window.open(url);
+    const anchor = document.createElement("a");
+    anchor.download = 'Molli_Result_' + (mode === 'current' ? 'Current_View_' : 'Complete_') + this.jobId + '.csv';
+
+    window.open(url);
     anchor.href = url;
     anchor.click();
-
-     */
+    window.URL.revokeObjectURL(url);
   }
 
   customSort(event: SortEvent) {

@@ -26,6 +26,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -81,6 +82,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ProgressBarModule,
     SelectButtonModule,
     SkeletonModule,
+    SplitButtonModule,
     RadioButtonModule,
     TableModule,
     TooltipModule,

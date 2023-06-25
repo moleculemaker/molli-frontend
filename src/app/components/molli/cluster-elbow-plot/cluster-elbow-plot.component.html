@@ -1,16 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" preserveAspectRatio="none">
+<svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" preserveAspectRatio="meet">
   <!-- background fill -->
   <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"/>
   <!-- grid lines -->
   <line class="grid" *ngFor="let distVal of distortions; let i = index" [attr.x1]="xScale(i+1)" [attr.x2]="xScale(i+1)" [attr.y1]="yScale.range()[0]" [attr.y2]="yScale.range()[1]"/>
   <line class="grid" *ngFor="let tick of yTicks" [attr.x1]="xScale.range()[0]" [attr.x2]="xScale.range()[1]" [attr.y1]="yScale(tick)" [attr.y2]="yScale(tick)"/>
   <!-- axis labels -->
-  <text class="axis" *ngFor="let distVal of distortions; let i = index" [attr.x]="xScale(i+1)" [attr.y]="yScale.range()[0]" text-anchor="middle" dy="15" [class.selected]="i+1 === selectedNumberOfClusters">{{i+1}}</text>
+  <text class="axis click-target" *ngFor="let distVal of distortions; let i = index" [attr.x]="xScale(i+1)" [attr.y]="yScale.range()[0]" text-anchor="middle" dy="15" [class.selected]="i+1 === selectedNumberOfClusters" (click)="selectNumberOfClusters(i+1)">{{i+1}}{{i+1 === knee ? '*' : ''}}</text>
   <text class="axis" *ngFor="let tick of yTicks" [attr.x]="xScale.range()[0]" [attr.y]="yScale(tick)" text-anchor="end" dy="3" dx="-7">{{tick}}</text>
-  <g [attr.transform]="'translate(' + (margins.left * 0.5) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
+  <g [attr.transform]="'translate(' + (margins.left * 0.5 - 8) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
     <text class="axis" text-anchor="middle" [attr.transform]="'rotate(-90)'">Distortion</text>
   </g>
-  <text class="axis" [attr.x]="0.5 * (xScale.range()[0] + xScale.range()[1])" [attr.y]="viewBox.height - margins.bottom * 0.5" text-anchor="middle" dy="10">Perplexity (Number of Clusters)</text>
+  <text class="axis" [attr.x]="0.5 * (xScale.range()[0] + xScale.range()[1])" [attr.y]="viewBox.height - margins.bottom * 0.5" text-anchor="middle" dy="7">Perplexity (Number of Clusters)</text>
+  <text class="axis default" [attr.x]="0.5 * (xScale.range()[0] + xScale.range()[1])" [attr.y]="viewBox.height - margins.bottom * 0.5" text-anchor="middle" dy="20">* = Default selection at knee of curve</text>
   <!-- curve -->
   <path class="curve" [attr.d]="linePath"/>
   <!-- points -->

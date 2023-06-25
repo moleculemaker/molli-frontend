@@ -12,14 +12,18 @@ svg {
 }
 
 .axis {
-  stroke: #224063;
+  fill: #224063;
+  stroke: none;
   font-size: 10px;
-  font-weight: 200;
-  opacity: 0.5;
 
   &.selected {
-    font-weight: 500;
+    font-weight: 700;
     opacity: 1;
+  }
+
+  &.default {
+    font-size: 8px;
+    font-style: italic;
   }
 }
 
@@ -38,6 +42,8 @@ svg {
 
 .click-target {
   cursor: pointer;
+}
+rect.click-target {
   fill: transparent;
   stroke: transparent;
 }

@@ -41,27 +41,22 @@
     </div>
 
     <ng-container *ngIf="result">
-      <p-panel *ngIf="!isFailed" header="Data Clustering" styleClass="mb-5" [toggleable]="true">
-        <div class="grid">
-          <div class="col">
-            <p class="mt-5 mb-3">Number of Clusters: <p-inputNumber [(ngModel)]="numberOfClusters" [min]="1" [max]="maxNumberOfClusters" [inputStyle]="{ width: '2.5rem', padding: '0.3rem 0.6rem', 'text-align': 'right' }" [pTooltip]="'Change the number of clusters with this control or by clicking on the plot below'" (change)="onNumberOfClustersChanged(numberOfClusters)"></p-inputNumber></p>
-            <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
-                                    [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
-          </div>
-          <div class="col">
-            <p class="mb-3">Clustering Visualization:</p>
-            <div class="formgroup-inline">
-              <div *ngFor="let option of clusteringMethodOptions" class="field-radiobutton">
-                <p-radioButton [inputId]="option.key" name="clusteringMethod" [value]="option"
-                               [(ngModel)]="clusteringMethod" (onClick)="onFormChanged('method')"></p-radioButton>
-                <label [for]="option.key" class="ml-2">{{ option.name }}</label>
-              </div>
-            </div>
-            <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
-                                     [structureDetails]="allRows"
-                                     [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
+      <p-panel *ngIf="!isFailed" styleClass="mb-5" [toggleable]="true">
+        <ng-template pTemplate="header"><h3>Data Clustering</h3></ng-template>
+        <p class="mt-2 mb-3">Number of Clusters: <p-inputNumber [(ngModel)]="numberOfClusters" [min]="1" [max]="maxNumberOfClusters" [inputStyle]="{ width: '2.5rem', padding: '0.3rem 0.6rem', 'text-align': 'right' }" [pTooltip]="'Change the number of clusters with this control or by clicking on the plot below'" (change)="onNumberOfClustersChanged(numberOfClusters)"></p-inputNumber></p>
+        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
+                                [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
+        <p class="mt-5 mb-3">Clustering Visualization:</p>
+        <div class="formgroup-inline">
+          <div *ngFor="let option of clusteringMethodOptions" class="field-radiobutton">
+            <p-radioButton [inputId]="option.key" name="clusteringMethod" [value]="option"
+                           [(ngModel)]="clusteringMethod" (onClick)="onFormChanged('method')"></p-radioButton>
+            <label [for]="option.key" class="ml-2">{{ option.name }}</label>
           </div>
         </div>
+        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
+                                 [structureDetails]="allRows"
+                                 [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
       </p-panel>
       <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
                (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'name'" [sortOrder]="1"

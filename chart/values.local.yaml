@@ -4,4 +4,4 @@ ingress:
   tls: true
 
 controller:
-  image: moleculemaker/molli-frontend:auth
+  image: moleculemaker/molli-frontend:staging

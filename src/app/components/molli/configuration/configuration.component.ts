@@ -1,7 +1,7 @@
 import {Component, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {switchMap} from 'rxjs/operators';
+import {switchMap, take} from 'rxjs/operators';
 
 import {Message} from 'primeng/api';
 import {NgHcaptchaService} from "ng-hcaptcha";
@@ -9,6 +9,7 @@ import {NgHcaptchaService} from "ng-hcaptcha";
 import {BackendService, ExampleKey} from 'src/app/services/backend.service';
 import {TrackingService} from 'src/app/services/tracking.service';
 import {UserInfoService} from "src/app/services/user-info.service";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-configuration',
@@ -16,7 +17,11 @@ import {UserInfoService} from "src/app/services/user-info.service";
   styleUrls: ['./configuration.component.scss']
 })
 export class ConfigurationComponent {
-  userEmail: string;
+  get userInfo() {
+    return this.userInfoService.userInfo;
+  }
+
+  userEmail: string = '';
   subscribeToEmail: boolean;
 
   disableCopyPaste = false; // can disable new jobs if traffic exceeds capacity
@@ -45,10 +50,9 @@ export class ConfigurationComponent {
 
   ngOnInit() {
     // If user is logged in, populate email field automatically
-    const userInfo = this.userInfoService.userInfo;
-    if (userInfo) {
-      this.userEmail = userInfo.email;
-    }
+    this.userInfo.pipe(take(1)).subscribe((userInfo) => {
+      this.userEmail = userInfo?.email || '';
+    });
     this.getExampleData();
     this.highTrafficMessages = [
       { severity: 'info', detail: 'Due to the overwhelming popularity of the Molli tool, we are temporarily unable to generate new libraries. As we increase our capacity, please feel free to explore the tool with the example data we have provided, and visit us again soon!' },
@@ -126,20 +130,29 @@ return true;
           }
         );
     } else if (this.userInfoService.userInfo) {
+      const data = this.parseUserInput();
       // User is logged in, send token cookie with request
-      this.backendService.submitJob(null, this.userEmail.trim()).subscribe(
+      this.backendService.submitJob(data, this.userEmail.trim()).subscribe(
         (data) => this.router.navigate(['/results', data.jobId]),
         (error) => this.handleJobSubmissionError(error)
       );
     } else {
+      const data = this.parseUserInput();
       // User not logged in, send through hcaptcha
       this.hcaptchaService.verify().pipe(
-        switchMap((token) => this.backendService.submitJob(null, this.userEmail.trim(), token))
+        switchMap((token) => this.backendService.submitJob(data, this.userEmail.trim(), token))
       ).subscribe(
         (data) => this.router.navigate(['/results', data.jobId]),
         (error) => this.handleJobSubmissionError(error)
       );
     }
+  }
+
+  parseUserInput() {
+    const cores = this.fileUploadArray[0].uploadedFile;
+    const subs = this.fileUploadArray[1].uploadedFile;
+
+    return { cores, subs };
   }
 
   handleJobSubmissionError(error: any): void {

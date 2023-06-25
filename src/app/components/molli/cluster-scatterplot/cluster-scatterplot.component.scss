@@ -86,7 +86,26 @@ svg {
 }
 
 .filler {
-  background-color: #ffffff;
+  background-color: #f7f8f9;
+
+  .focus_item {
+    width: 220px;
+    margin: 12px 10px;
+    padding: 7px 11px;
+
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+
+    h3, h4 {
+      margin-top: 0;
+    }
+
+    ::ng-deep .p-avatar-circle {
+      width: 14px;
+      height: 14px;
+    }
+  }
 }
 
 // note .structure_tooltip has to be styled in the global styles file

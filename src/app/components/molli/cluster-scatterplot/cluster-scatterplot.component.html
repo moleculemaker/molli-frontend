@@ -1,26 +1,47 @@
-<div class="legend_container flex flex-row">
+<div class="legend_container flex flex-row flex-wrap">
+  <div class="legend flex-none">
+    <div class="title">Cluster Label</div>
+    <div *ngFor="let cluster of clusters" class="field-checkbox" (mouseenter)="highlightCluster(cluster)" (mouseleave)="unhighlightCluster()">
+      <p-checkbox name="group" [value]="cluster.index" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+cluster.index" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox>
+      <label [for]="'cluster'+cluster.index"><p-avatar [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster" [style]="{ 'background-color': cluster.color }" shape="circle"></p-avatar><div class="cluster_number">{{ cluster.index }}</div></label>
+    </div>
+  </div>
   <div class="flex-none">
-    <svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" [style.height.px]="viewBox.height" [style.width.px]="viewBox.width" preserveAspectRatio="meet">
+    <svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" [style.height.px]="viewBox.height" [style.width.px]="viewBox.width" preserveAspectRatio="none">
       <!-- background -->
       <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"/>
       <!-- points -->
-      <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="5" [attr.fill]="point.color" (mouseenter)="highlightCluster(point.cluster)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== point.cluster"/>
-      <!-- exemplars TODO reconsider data model once requirements settle down -->
-      <circle *ngFor="let exemplar of exemplars" class="exemplar" [attr.cx]="exemplar.point.x" [attr.cy]="exemplar.point.y" r="5" [attr.fill]="exemplar.point.color" (mouseenter)="highlightCluster(exemplar.point.cluster)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== exemplar.point.cluster"/>
+      <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="5" [attr.fill]="point.cluster.color" (mouseenter)="highlightCluster(point.cluster, point)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== point.cluster"/>
+      <!-- exemplars, which should be rendered above other points -->
+      <circle *ngFor="let cluster of clusters" class="exemplar" [attr.cx]="cluster.exemplar.x" [attr.cy]="cluster.exemplar.y" r="5" [attr.fill]="cluster.color" (mouseenter)="highlightCluster(cluster, cluster.exemplar)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster"/>
       <!-- axis labels -->
       <g [attr.transform]="'translate(' + (margins.left * 0.5 - 4) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
         <text class="axis" text-anchor="middle" [attr.transform]="'rotate(-90)'">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 2</text>
       </g>
       <text class="axis" [attr.x]="0.5 * (xScale.range()[0] + xScale.range()[1])" [attr.y]="viewBox.height - margins.bottom * 0.5" text-anchor="middle" dy="7">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 1</text>
-
     </svg>
   </div>
-  <div class="legend flex-none">
-    <div class="title">Cluster Label</div>
-    <div *ngFor="let exemplar of exemplars; let i = index" class="field-checkbox" (mouseenter)="highlightCluster(i)" (mouseleave)="unhighlightCluster()">
-      <p-checkbox name="group" [value]="i" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+i" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox>
-      <label [for]="'cluster'+i" [pTooltip]="exemplar.tooltipContent" [escape]="false" tooltipStyleClass="structure_tooltip"><p-avatar [class.faded]="highlightedCluster !== null && highlightedCluster !== i" [style]="{ 'background-color': exemplar.point.color }" shape="circle"></p-avatar><div class="cluster_number">{{ i }}</div></label>
+  <div class="flex-grow-1 filler">
+    <div *ngIf="highlightedCluster !== null" class="focus_item">
+      <div *ngIf="highlightedPoint">
+        <h3>Structure {{ highlightedPoint.name }}</h3>
+        <hr>
+        <div class="flex align-content-center gap-1">
+          <h4 class="flex align-items-center">Cluster Label:</h4>
+          <p-avatar class="flex align-items-center" [style]="{ 'background-color': highlightedCluster.color }" shape="circle"></p-avatar>
+          <h4 class="flex align-items-center">{{ highlightedCluster.index }}</h4>
+        </div>
+        <app-molecule2d [svg]="highlightedPoint.svg" [height]="200" [width]="200"></app-molecule2d>
+      </div>
+      <div *ngIf="!highlightedPoint">
+        <div class="flex align-content-center gap-1">
+          <p-avatar class="flex align-items-center" [style]="{ 'background-color': highlightedCluster.color }" shape="circle"></p-avatar>
+          <h3 class="flex align-items-center">Cluster {{ highlightedCluster.index }}</h3>
+        </div>
+        <hr>
+        <h4>Exemplar: {{ highlightedCluster.exemplar.name }}</h4>
+        <app-molecule2d class="text-center" [svg]="highlightedCluster.exemplar.svg" [height]="200" [width]="200"></app-molecule2d>
+      </div>
     </div>
   </div>
-  <div class="flex-grow-1 filler"></div>
 </div>

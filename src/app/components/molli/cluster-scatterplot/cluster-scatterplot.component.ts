@@ -29,7 +29,8 @@ export class ClusterScatterplotComponent implements OnChanges {
   @Input()
   mode: 'tsne'|'pca';
 
-  highlightedCluster: number|null = null;
+  highlightedCluster: Cluster|null = null;
+  highlightedPoint: Point|null = null;
 
   viewBox = {
     height: 400,
@@ -46,7 +47,7 @@ export class ClusterScatterplotComponent implements OnChanges {
   exemplarBoxSize = 20;
 
   points: Point[] = [];
-  exemplars: Exemplar[] = [];
+  clusters: Cluster[] = [];
 
   xScale: ScaleLinear<number, number>;
   yScale: ScaleLinear<number, number>;
@@ -69,6 +70,18 @@ export class ClusterScatterplotComponent implements OnChanges {
     if (this.data && this.numberOfClusters && this.data.clusterAssignments[this.numberOfClusters] && this.structureDetails) {
       // create map from structure name to structure
       const structureNameToStructure = new Map<string, GeneratedStructureViewModel>(this.structureDetails.map(structure => [structure.name, structure]));
+
+      // build data structures to represent clusters
+      this.clusters = [];
+      for (let i = 0; i < this.numberOfClusters; i++) {
+        this.clusters.push({
+          exemplar: null as unknown as Point, // we'll fix this in a moment
+          index: i,
+          color: this.colors[i],
+          isSelected: this.selectedClusterIndices.includes(i)
+        });
+      }
+
       // create x scale and y scale
       const xExtent = extent(Object.values(this.data.coordinates['0'])) as [number, number];
       const yExtent = extent(Object.values(this.data.coordinates['1'])) as [number, number];
@@ -79,9 +92,9 @@ export class ClusterScatterplotComponent implements OnChanges {
       this.points = Object.entries(this.data.clusterAssignments[this.numberOfClusters]).map(([name, clusterIndex]) => ({
         x: this.xScale(this.data!.coordinates['0'][name]),
         y: this.yScale(this.data!.coordinates['1'][name]),
-        color: this.colors[clusterIndex],
         name,
-        cluster: clusterIndex
+        svg: structureNameToStructure.get(name)!.svg,
+        cluster: this.clusters[clusterIndex]
       }));
 
       // get exemplars
@@ -89,43 +102,40 @@ export class ClusterScatterplotComponent implements OnChanges {
       const exemplarNameToClusterIndex = new Map<string, number>(
         exemplarsForCurrentNumberOfClusters!.map((name, index) => [name, index])
       );
-      this.exemplars = this.points.filter(point => exemplarNameToClusterIndex.has(point.name)).map(point => {
-        const clusterIndex = exemplarNameToClusterIndex.get(point.name)!;
-        return {
-          point,
-          clusterIndex,
-          isSelected: this.selectedClusterIndices.includes(clusterIndex),
-          tooltipContent: '<h2>Cluster ' + clusterIndex + '</h2><hr><h3>Exemplar: ' + point.name + '</h3>' + structureNameToStructure.get(point.name)!.svg
-        };
-      }).sort((e1, e2) => e1.clusterIndex - e2.clusterIndex); // template assumes exemplars are sorted in cluster order
+      this.points.filter(point => exemplarNameToClusterIndex.has(point.name)).forEach(exemplar => {
+        const cluster = this.clusters[exemplarNameToClusterIndex.get(exemplar.name)!];
+        cluster.exemplar = exemplar;
+      });
     }
   }
 
-  toggleExemplar(exemplar: Exemplar): void {
-    exemplar.isSelected = !exemplar.isSelected;
-    this.selectedClusterIndices = this.exemplars.filter(ex => ex.isSelected).map(ex => ex.clusterIndex);
+  toggleCluster(cluster: Cluster): void {
+    cluster.isSelected = !cluster.isSelected;
+    this.selectedClusterIndices = this.clusters.filter(cluster => cluster.isSelected).map(cluster => cluster.index);
     this.selectedClusterIndicesChange.emit(this.selectedClusterIndices);
   }
 
-  highlightCluster(cluster: number): void {
+  highlightCluster(cluster: Cluster, point: Point|null = null): void {
     this.highlightedCluster = cluster;
+    this.highlightedPoint = point;
   }
   unhighlightCluster(): void {
     this.highlightedCluster = null;
+    this.highlightedPoint = null;
   }
 }
 
 interface Point {
   x: number;
   y: number;
-  color: string;
   name: string;
-  cluster: number;
+  svg: string;
+  cluster: Cluster;
 }
 
-interface Exemplar {
-  point: Point;
-  clusterIndex: number;
+interface Cluster {
+  index: number;
+  exemplar: Point;
+  color: string;
   isSelected: boolean;
-  tooltipContent: string;
 }

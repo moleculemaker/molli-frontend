@@ -19,12 +19,11 @@
           (mouseenter)="highlightCluster(point.cluster, point)" (mouseleave)="unhighlightCluster()" />
       </ng-container>
       <!-- exemplars, which should be rendered above other points -->
-      <g *ngFor="let cluster of clusters" [attr.transform]="'translate(' + (cluster.exemplar.x - starOffset) + ',' + (cluster.exemplar.y - starOffset) + ')'">
-        <polygon [attr.points]="starPoints"
-          [attr.fill]="cluster.color" [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster"
-          [class.highlighted]="highlightedCluster === cluster && (highlightedPoint === null || highlightedPoint === cluster.exemplar)"
-          (mouseenter)="highlightCluster(cluster, cluster.exemplar)" (mouseleave)="unhighlightCluster()"/>
-      </g>
+      <polygon *ngFor="let cluster of clusters" [attr.transform]="'translate(' + (cluster.exemplar.x - starOffset) + ',' + (cluster.exemplar.y - starOffset) + ')'"
+        [attr.points]="starPoints"
+        [attr.fill]="cluster.color" [class.faded]="highlightedCluster !== null && highlightedCluster !== cluster"
+        [class.highlighted]="highlightedCluster === cluster && (highlightedPoint === null || highlightedPoint === cluster.exemplar)"
+        (mouseenter)="highlightCluster(cluster, cluster.exemplar)" (mouseleave)="unhighlightCluster()"/>
       <!-- axis labels -->
       <g [attr.transform]="'translate(' + (margins.left * 0.5 - 4) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
         <text class="axis" text-anchor="middle" [attr.transform]="'rotate(-90)'">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 2</text>

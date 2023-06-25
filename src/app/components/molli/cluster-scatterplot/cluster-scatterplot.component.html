@@ -1,21 +1,26 @@
-<div class="legend">
-  <div class="title">Cluster Label</div>
-  <div *ngFor="let exemplar of exemplars; let i = index" class="field-checkbox" [pTooltip]="exemplar.tooltipContent" [escape]="false" tooltipStyleClass="structure_tooltip">
-    <p-checkbox name="group" [value]="i" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+i" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox>
-    <label [for]="'cluster'+i"><p-avatar [style]="{ 'background-color': exemplar.point.color }" shape="circle"></p-avatar><div class="cluster_number">{{ i }}</div></label>
+<div class="legend_container flex flex-row">
+  <div class="flex-none">
+    <svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" [style.height.px]="viewBox.height" [style.width.px]="viewBox.width" preserveAspectRatio="meet">
+      <!-- background -->
+      <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"/>
+      <!-- points -->
+      <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="5" [attr.fill]="point.color" (mouseenter)="highlightCluster(point.cluster)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== point.cluster"/>
+      <!-- exemplars TODO reconsider data model once requirements settle down -->
+      <circle *ngFor="let exemplar of exemplars" class="exemplar" [attr.cx]="exemplar.point.x" [attr.cy]="exemplar.point.y" r="5" [attr.fill]="exemplar.point.color" (mouseenter)="highlightCluster(exemplar.point.cluster)" (mouseleave)="unhighlightCluster()" [class.faded]="highlightedCluster !== null && highlightedCluster !== exemplar.point.cluster"/>
+      <!-- axis labels -->
+      <g [attr.transform]="'translate(' + (margins.left * 0.5 - 4) + ',' + (0.5 * (yScale.range()[0] + yScale.range()[1])) + ')'">
+        <text class="axis" text-anchor="middle" [attr.transform]="'rotate(-90)'">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 2</text>
+      </g>
+      <text class="axis" [attr.x]="0.5 * (xScale.range()[0] + xScale.range()[1])" [attr.y]="viewBox.height - margins.bottom * 0.5" text-anchor="middle" dy="7">{{ mode === 'pca' ? 'PC' : 't-SNE' }} 1</text>
+
+    </svg>
   </div>
+  <div class="legend flex-none">
+    <div class="title">Cluster Label</div>
+    <div *ngFor="let exemplar of exemplars; let i = index" class="field-checkbox" (mouseenter)="highlightCluster(i)" (mouseleave)="unhighlightCluster()">
+      <p-checkbox name="group" [value]="i" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+i" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox>
+      <label [for]="'cluster'+i" [pTooltip]="exemplar.tooltipContent" [escape]="false" tooltipStyleClass="structure_tooltip"><p-avatar [class.faded]="highlightedCluster !== null && highlightedCluster !== i" [style]="{ 'background-color': exemplar.point.color }" shape="circle"></p-avatar><div class="cluster_number">{{ i }}</div></label>
+    </div>
+  </div>
+  <div class="flex-grow-1 filler"></div>
 </div>
-<svg xmlns="http://www.w3.org/2000/svg" [attr.viewBox]="'0 0 ' + viewBox.width + ' ' + viewBox.height" preserveAspectRatio="none">
-  <!-- background -->
-  <rect class="background" [attr.width]="viewBox.width" [attr.height]="viewBox.height"></rect>
-  <!-- points -->
-  <circle *ngFor="let point of points" [attr.cx]="point.x" [attr.cy]="point.y" r="4" [attr.fill]="point.color"></circle>
-  <!-- TODO exemplars -->
-  <g *ngFor="let exemplar of exemplars" class="exemplar" [attr.transform]="'translate(' + exemplar.point.x + ',' + exemplar.point.y + ')'">
-    <rect [class.selected]="exemplar.isSelected"
-          [attr.width]="exemplarBoxSize" [attr.height]="exemplarBoxSize"
-          [attr.x]="exemplarBoxSize * -0.5" [attr.y]="exemplarBoxSize * -0.5"
-          rx="5" [attr.stroke]="exemplar.point.color" (click)="toggleExemplar(exemplar)"></rect>
-    <text [attr.stroke]="exemplar.point.color" [attr.dy]="exemplarBoxSize * 0.5 - 5">{{ exemplar.clusterIndex }}</text>
-  </g>
-</svg>

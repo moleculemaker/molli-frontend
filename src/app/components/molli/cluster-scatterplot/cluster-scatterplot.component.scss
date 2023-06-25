@@ -7,24 +7,86 @@ svg {
 }
 
 .exemplar {
-  rect {
-    stroke-width: 1px;
-    cursor: pointer;
-    fill: #ffffff;
-    opacity: 0.7;
+  stroke-width: 1px;
+  stroke: #000000;
+}
 
-    &.selected, &:hover {
-      stroke-width: 2px;
+.axis {
+  fill: #224063;
+  stroke: none;
+  font-size: 10px;
+}
+
+.faded {
+  opacity: 0.1;
+}
+
+.legend_container {
+  background-color: #f7f8f9;
+
+  .legend {
+    margin: 12px 10px;
+    padding: 7px 11px;
+
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+
+    font-size: 16px;
+
+    ::ng-deep .field-checkbox {
+      margin: 2px 0;
+      font-size: 14px;
+
+      .p-checkbox {
+        height: 14px;
+        width: 14px;
+
+        .p-checkbox-box {
+          height: 14px;
+          width: 14px;
+          border-width: 1px;
+          border-radius: 0;
+
+          &:hover {
+            border-color: #6C757D;
+          }
+          &.p-highlight {
+            border-color: #6C757D;
+            background-color: #6C757D;
+          }
+          &.p-focus, &.p-highlight {
+            box-shadow: none;
+          }
+
+          .p-checkbox-icon {
+            font-size: 12px;
+          }
+        }
+      }
+
+      label {
+        cursor: pointer;
+      }
+
+      .p-avatar-circle {
+        vertical-align: middle;
+        width: 14px;
+        height: 14px;
+      }
+
+      .cluster_number {
+        display: inline-block;
+        padding-left: 5px;
+        position: relative;
+        top: 1px;
+      }
     }
-
-    &:not(.selected):hover {
-      stroke-dasharray: 0.5% 0.5%;
-      opacity: 1;
-    }
-  }
-
-  text {
-    text-anchor: middle;
-    pointer-events: none; // prevent text element from interfering with hover/click on rect element
   }
 }
+
+.filler {
+  background-color: #ffffff;
+}
+
+// note .structure_tooltip has to be styled in the global styles file

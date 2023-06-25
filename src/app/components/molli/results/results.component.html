@@ -3,13 +3,14 @@
     <div class="header">
       <div class="info">
         <h3>
-          Job ID: {{ jobId$ | async }}
+          Job ID: {{ jobId }}
           <i class="pi pi-copy copy_and_paste_button" (click)="copyAndPasteURL()"></i>
         </h3>
 
         <div class="details">
-          <!-- TODO replace job information -->
-          <div class="sequence_count">FIXME</div>
+          <!-- TODO replace counts with filenames and rename css classes -->
+          <div class="sequence_count">Number of cores: {{ allCores.length }}</div>
+          <div class="sequence_count">Number of substituents: {{ allSubstituents.length }}</div>
           <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
         </div>
       </div>
@@ -40,32 +41,18 @@
     </div>
 
     <ng-container *ngIf="result">
-      <p-panel *ngIf="!isFailed" header="Data Clustering" styleClass="mb-5" [toggleable]="true">
-        <p class="mb-3">Clustering Method:</p>
-        <div class="formgroup-inline">
-          <div *ngFor="let option of clusteringMethodOptions" class="field-radiobutton">
-            <p-radioButton [inputId]="option.key" name="clusteringMethod" [value]="option"
-                           [(ngModel)]="clusteringMethod" (onClick)="onFormChanged('method')"></p-radioButton>
-            <label [for]="option.key" class="ml-2">{{ option.name }}</label>
-          </div>
+      <p-panel *ngIf="!isFailed" styleClass="mb-5" [toggleable]="true">
+        <ng-template pTemplate="header"><h3>Data Clustering</h3></ng-template>
+        <p class="mt-2 mb-3">Number of Clusters: <p-inputNumber [(ngModel)]="numberOfClusters" [min]="1" [max]="maxNumberOfClusters" [inputStyle]="{ width: '2.5rem', padding: '0.3rem 0.6rem', 'text-align': 'right' }" [pTooltip]="'Change the number of clusters with this control or by clicking on the plot below'" (change)="onNumberOfClustersChanged(numberOfClusters)"></p-inputNumber></p>
+        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
+                                [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
+        <div class="mt-5 mb-3 flex align-content-center gap-2">
+          <p class="flex align-items-center">Cluster Visualization:</p>
+          <p-selectButton [options]="clusteringMethodOptions" styleClass="clustering_mode_selector" [(ngModel)]="clusteringMethod" optionLabel="name" (onChange)="onFormChanged('method')"></p-selectButton>
         </div>
-        <p class="mt-5 mb-3">Number of Clusters:</p>
-        <div class="formgroup-inline">
-          <div *ngFor="let option of numberOfClustersModeOptions" class="field-radiobutton">
-            <p-radioButton [inputId]="option.key" name="numberOfClustersMode" [value]="option"
-                           [(ngModel)]="numberOfClustersMode" (onClick)="onFormChanged('numberMode')"></p-radioButton>
-            <label [for]="option.key" class="ml-2">{{ option.name }} <p-avatar [label]="option.number + ''" styleClass="mr-2"></p-avatar></label>
-          </div>
-        </div>
-        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClustersMode.number" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
-                                [distortions]="getCurrentClusteringData().distortions"></app-cluster-elbow-plot>
-        <p class="mb-3">Cluster Visualization:</p>
-        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClustersMode.number"
+        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
+                                 [structureDetails]="allRows" [mode]="$any(clusteringMethod.key)"
                                  [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
-
-        <p class="mb-3">Selected Clusters:</p>
-        <p-multiSelect [options]="clusters" [(ngModel)]="selectedClusters" (onChange)="onFormChanged('selectedClusters')"
-                       defaultLabel="Select a Cluster" optionLabel="name" optionValue="value" display="chip"></p-multiSelect>
       </p-panel>
       <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
                (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'name'" [sortOrder]="1"
@@ -84,7 +71,7 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
                 <i class="pi pi-search"></i>
                 <input pInputTextarea type="text" (input)="table.filterGlobal($any($event.target).value, 'contains')" placeholder="Identifier / EcNumbers" />
             </span> -->
-            <p-overlayPanel #op [showCloseIcon]="true">
+            <p-overlayPanel #filterPanel [showCloseIcon]="true">
               <p class="mb-3">Selected Cores:</p>
               <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable()"
                              defaultLabel="Select one or more cores" display="chip"></p-multiSelect>
@@ -93,11 +80,10 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
                              defaultLabel="Select one or more substituents" display="chip"></p-multiSelect>
             </p-overlayPanel>
             <button pButton label="Filter" icon="pi pi-search" class="p-button-outlined"
-                    (click)="op.toggle($event)"></button>
+                    (click)="filterPanel.toggle($event)"></button>
 
 
-            <button pButton label="Download Results" icon="pi pi-download" class="p-button-sm"
-                    (click)="downloadResult()"></button>
+            <p-splitButton label="Download Results" icon="pi pi-download" class="p-button-sm" (onClick)="downloadResult('current')" [model]="downloadOptions"></p-splitButton>
 
           </div>
         </ng-template>
@@ -125,7 +111,7 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
             <td>{{row.name}}</td>
             <td>{{row.core}}</td>
             <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
-            <td><div [innerHtml]="row.svg"></div></td>
+            <td class="structure_2d"><app-molecule2d (click)="openStructureDialog(row)" [svg]="row.svg" [height]="150" [width]="150"></app-molecule2d></td>
             <td>{{row.cluster}}</td>
           </tr>
         </ng-template>
@@ -137,3 +123,18 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
     </ng-container>
   </div>
 </div>
+
+<p-dialog [header]="'Structure: ' + (structureForDialog?.name || '')" [(visible)]="isStructureDialogOpen" [modal]="true" [style]="{ width: '75vw' }" [draggable]="false" [resizable]="false">
+  <div class="grid">
+    <div class="col text-center">
+      <p-card *ngIf="structureForDialog" header="2D">
+        <app-molecule2d [svg]="structureForDialog.svg" [height]="400" [width]="400"></app-molecule2d>
+      </p-card>
+    </div>
+    <div class="col text-center">
+      <p-card *ngIf="structureForDialog" header="3D">
+        <app-molecule3d [mol2data]="structureForDialog.mol2" mode="stick"></app-molecule3d>
+      </p-card>
+    </div>
+  </div>
+</p-dialog>

@@ -10,12 +10,13 @@ import { NgHcaptchaModule } from 'ng-hcaptcha';
 
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { MenuModule } from "primeng/menu";
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -25,7 +26,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SkeletonModule } from 'primeng/skeleton';
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -33,6 +36,7 @@ import { ClusterElbowPlotComponent } from './components/molli/cluster-elbow-plot
 import { ClusterScatterplotComponent } from './components/molli/cluster-scatterplot/cluster-scatterplot.component';
 import { ConfigurationComponent} from './components/molli/configuration/configuration.component';
 import { LandingPageComponent} from './components/landing-page/landing-page.component';
+import { Molecule2dComponent } from './components/molli/molecule2d/molecule2d.component';
 import { Molecule3dComponent } from './components/molli/molecule3d/molecule3d.component';
 import { ResultsComponent } from './components/molli/results/results.component';
 import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
@@ -50,6 +54,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ClusterScatterplotComponent,
     ConfigurationComponent,
     LandingPageComponent,
+    Molecule2dComponent,
     Molecule3dComponent,
     ResultsComponent,
     StructureFileUploadComponent
@@ -62,11 +67,12 @@ const initAppFn = (envService: EnvironmentService) => {
     HttpClientModule,
     AvatarModule,
     ButtonModule,
+    CardModule,
     CheckboxModule,
     ChipModule,
     DialogModule,
     DropdownModule,
-    InputTextareaModule,
+    InputNumberModule,
     FileUploadModule,
     MessagesModule,
     MenuModule,
@@ -76,8 +82,10 @@ const initAppFn = (envService: EnvironmentService) => {
     ProgressBarModule,
     SelectButtonModule,
     SkeletonModule,
-    TableModule,
+    SplitButtonModule,
     RadioButtonModule,
+    TableModule,
+    TooltipModule,
     NgxMatomoTrackerModule.forRoot({
       siteId: 4,
       trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'

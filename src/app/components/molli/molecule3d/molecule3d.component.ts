@@ -62,6 +62,6 @@ export class Molecule3dComponent implements AfterViewInit, OnChanges, OnDestroy 
     }
     viewer.zoomTo();
     viewer.render();
-    // previously had viewer.zoom(0.8, 2000); for dramatic effect; could restore if adding single-molecule 3d viewer
+    viewer.zoom(0.8, 2000);
   }
 }

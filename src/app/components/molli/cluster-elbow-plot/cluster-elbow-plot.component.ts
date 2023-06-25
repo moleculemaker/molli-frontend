@@ -26,9 +26,9 @@ export class ClusterElbowPlotComponent implements OnChanges {
   };
 
   margins = {
-    top: 10,
+    top: 18,
     right: 20,
-    bottom: 40,
+    bottom: 60,
     left: 60
   };
 

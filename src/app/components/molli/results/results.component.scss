@@ -103,14 +103,14 @@ a:link, a:visited, a:active {
 .card {
     margin: auto;
     width: 70%;
-}   
+}
 
 :host ::ng-deep .p-message.p-message-info {
     background: #F2F5FC;
     border-width: 0 0 0 0;
     color: #224063;
     text-align: center;
-    .p-message-icon { 
+    .p-message-icon {
         display: none;
     }
 }
@@ -118,6 +118,15 @@ a:link, a:visited, a:active {
 :host ::ng-deep .p-message.p-message-error {
     border-width: 0 0 0 0;
     text-align: left;
+}
+
+::ng-deep .clustering_mode_selector {
+  .p-button {
+    padding: 0.25rem 0.7rem;
+  }
+  .p-button-label {
+    font-weight: 500;
+  }
 }
 
 .table_caption {
@@ -135,4 +144,19 @@ a:link, a:visited, a:active {
     margin: auto;
     text-align: center;
     width: 100%;
+}
+
+td {
+  vertical-align: middle;
+
+  &.structure_2d {
+    &:hover {
+      cursor: pointer;
+
+      app-molecule2d ::ng-deep svg {
+        border-radius: 6px;
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #9dc1fb, 0 1px 2px 0 black;
+      }
+    }
+  }
 }

@@ -1,5 +1,11 @@
+export interface JobFileData {
+  cores: string | Blob;
+  subs: string | Blob;
+}
+
 export interface JobPostRequest {
-  data: null; // TODO FIXME
+  cores: string; // TODO FIXME
+  subs: string;
   user_email: string; // TODO empty string if no entry?
   captcha_token: string;
 }

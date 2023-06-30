@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import {catchError, of} from "rxjs";
+import {catchError, of, Subject} from "rxjs";
 import {EnvironmentService} from "./environment.service";
 import {EnvVars} from "../models/envvars";
 
@@ -11,7 +11,7 @@ export class UserInfoService {
   // TODO: Parameterize these somehow with environment (env.tpl?)
 
   // Cache our currently logged-in user, or undefined if not logged in
-  userInfo?: UserInfo;
+  userInfo: Subject<UserInfo | undefined> = new Subject<UserInfo | undefined>();
   envs: EnvVars;
 
   constructor(private http: HttpClient, private envService: EnvironmentService) {
@@ -23,11 +23,11 @@ export class UserInfoService {
     const url = this.envs.userInfoUrl;
     this.http.get(url, { withCredentials: true }).pipe(catchError(err => {
       // 401 returned, no user found - login required
-      this.userInfo = undefined;
+      this.userInfo.next(undefined);
       return of(undefined);
     })).subscribe((value: unknown) => {
       // User was found, meaning the cookie was valid
-      this.userInfo = value as UserInfo;
+      this.userInfo.next(value as UserInfo);
     });
   }
 

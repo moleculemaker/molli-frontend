@@ -24,7 +24,7 @@
     </ng-template>
 
     <ng-template let-file pTemplate="file">
-        {{file.name}} - {{file.size}} bytes
+        {{file.name}} - {{file.size | bytes}}
     </ng-template>
 
     <ng-template pTemplate="content">
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="text-500 font-italic2">
-                    Supported format: ChemDraw. Maximum size: 100Mb
+                    Supported format: CDXML. Maximum size: 100MB
                 </div>
             </div>
         </div>

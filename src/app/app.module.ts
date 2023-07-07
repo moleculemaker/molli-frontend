@@ -42,6 +42,7 @@ import { ResultsComponent } from './components/molli/results/results.component';
 import { StructureFileUploadComponent} from './components/molli/structure-file-upload/structure-file-upload.component';
 
 import { EnvironmentService } from "./services/environment.service";
+import { BytesPipe } from './pipes/bytes.pipe';
 
 const initAppFn = (envService: EnvironmentService) => {
   return () => envService.loadEnvConfig('/assets/config/envvars.json');
@@ -57,7 +58,8 @@ const initAppFn = (envService: EnvironmentService) => {
     Molecule2dComponent,
     Molecule3dComponent,
     ResultsComponent,
-    StructureFileUploadComponent
+    StructureFileUploadComponent,
+    BytesPipe
   ],
   imports: [
     BrowserModule,

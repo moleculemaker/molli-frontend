@@ -66,25 +66,21 @@ turned this off, since only totalRecords appears to be accessible from the #tabl
               <h5 class="count">Showing {{table.first}} - {{table.last}} of {{table.totalRecords}} results</h5>
 -->
             </div>
-
-            <!-- <span class="p-input-icon-left ml-auto">
-                <i class="pi pi-search"></i>
-                <input pInputTextarea type="text" (input)="table.filterGlobal($any($event.target).value, 'contains')" placeholder="Identifier / EcNumbers" />
-            </span> -->
-            <p-overlayPanel #filterPanel [showCloseIcon]="true">
-              <p class="mb-3">Selected Cores:</p>
-              <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable()"
-                             defaultLabel="Select one or more cores" display="chip"></p-multiSelect>
-              <p class="mt-6 mb-3">Selected Substituents:</p>
-              <p-multiSelect [options]="allSubstituents" [(ngModel)]="selectedSubstituents" (onChange)="filterTable()"
-                             defaultLabel="Select one or more substituents" display="chip"></p-multiSelect>
-            </p-overlayPanel>
-            <button pButton label="Filter" icon="pi pi-search" class="p-button-outlined"
-                    (click)="filterPanel.toggle($event)"></button>
+            <div class="flex gap-2">
+              <p-overlayPanel #filterPanel [showCloseIcon]="true">
+                <p class="mb-3">Selected Cores:</p>
+                <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable()"
+                               defaultLabel="Select one or more cores" display="chip"></p-multiSelect>
+                <p class="mt-6 mb-3">Selected Substituents:</p>
+                <p-multiSelect [options]="allSubstituents" [(ngModel)]="selectedSubstituents" (onChange)="filterTable()"
+                               defaultLabel="Select one or more substituents" display="chip"></p-multiSelect>
+              </p-overlayPanel>
+              <button pButton label="Filter" icon="pi pi-search" class="p-button-outlined"
+                      (click)="filterPanel.toggle($event)"></button>
 
 
-            <p-splitButton label="Download Results" icon="pi pi-download" class="p-button-sm" (onClick)="downloadResult('current')" [model]="downloadOptions"></p-splitButton>
-
+              <p-splitButton label="Download Results" icon="pi pi-download" class="p-button-sm" (onClick)="downloadResult('current')" [model]="downloadOptions"></p-splitButton>
+            </div>
           </div>
         </ng-template>
 

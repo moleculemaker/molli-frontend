@@ -13,3 +13,4 @@ config:
 controller:
   image: moleculemaker/molli-frontend
 
+extraDeploy: []

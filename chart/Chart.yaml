@@ -2,3 +2,7 @@ apiVersion: v2
 description: "MOLLI Frontend"
 name: molli-frontend
 version: 1.0.0
+dependencies:
+- name: common
+  version: ~2.2.0
+  repository: "https://charts.bitnami.com/bitnami"

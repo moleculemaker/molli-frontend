@@ -1,0 +1,13 @@
+export * from './chemScraper.service';
+import { ChemScraperService } from './chemScraper.service';
+export * from './default.service';
+import { DefaultService } from './default.service';
+export * from './files.service';
+import { FilesService } from './files.service';
+export * from './jobs.service';
+import { JobsService } from './jobs.service';
+export * from './novostoic.service';
+import { NovostoicService } from './novostoic.service';
+export * from './somn.service';
+import { SomnService } from './somn.service';
+export const APIS = [ChemScraperService, DefaultService, FilesService, JobsService, NovostoicService, SomnService];

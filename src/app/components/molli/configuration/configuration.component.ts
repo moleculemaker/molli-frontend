@@ -10,6 +10,7 @@ import {BackendService, ExampleKey} from 'src/app/services/backend.service';
 import {TrackingService} from 'src/app/services/tracking.service';
 import {UserInfoService} from "src/app/services/user-info.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {catchError, of} from "rxjs";
 
 @Component({
   selector: 'app-configuration',
@@ -134,22 +135,27 @@ return true;
             this.router.navigate(['/results', data.jobId]);
           }
         );
-    } else if (this.userInfoService.userInfo) {
-      const data = this.parseUserInput();
-      // User is logged in, send token cookie with request
-      this.backendService.submitJob(data, this.userEmail.trim()).subscribe(
-        (data) => this.router.navigate(['/results', data.jobId]),
-        (error) => this.handleJobSubmissionError(error)
-      );
     } else {
-      const data = this.parseUserInput();
-      // User not logged in, send through hcaptcha
-      this.hcaptchaService.verify().pipe(
-        switchMap((token) => this.backendService.submitJob(data, this.userEmail.trim(), token))
-      ).subscribe(
-        (data) => this.router.navigate(['/results', data.jobId]),
-        (error) => this.handleJobSubmissionError(error)
-      );
+      this.userInfo.pipe(
+        take(1),
+        switchMap((user) => {
+          const data = this.parseUserInput();
+          if (user) {
+            // User is logged in, send token cookie with request
+            return this.backendService.submitJob(data, this.userEmail.trim());
+          } else {
+            // User not logged in, send through hcaptcha
+            return this.hcaptchaService.verify().pipe(
+              switchMap((token) =>
+                this.backendService.submitJob(data, this.userEmail.trim(), token)
+              )
+            );
+          }
+        })
+      ).subscribe({
+        next: (data) => this.router.navigate(['/results', data.jobId]),
+        error: (error) => this.handleJobSubmissionError(error)
+      });
     }
   }
 

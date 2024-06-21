@@ -24,7 +24,7 @@ header {
     align-items: center; //flex-end;
     gap: $padding;
 
-    padding: 0px ($padding * 2);
+    padding: 0px ($padding * 2.8);
 
     > div {
         padding: $padding 0px;
@@ -35,7 +35,7 @@ header {
 
         font: {
             //design called for Montserrat font, kept as Inter to avoid loading extra fonts only used here?
-            size: .65rem;
+            size: .75rem;
         }
         text: {
             transform: uppercase;
@@ -47,6 +47,7 @@ header {
     }
 
     .divider {
+        margin-left: 26px;
         height: 4.75rem;
 
         padding: 0px;
@@ -219,11 +220,14 @@ header {
         display: flex;
         align-items: center;
         gap: $padding;
+        padding: 1.44rem;
     }
 
     .clean_logo {
+        width: 66px;
+        height: 34px;
         font: {
-            size: 1.65rem;
+            size: 1.75rem;
             weight: bold;
         }
 
@@ -237,7 +241,7 @@ header {
 
     .tagline {
         font: {
-            size: .7rem;
+            size: .75rem;
             weight: 600;
         }
 

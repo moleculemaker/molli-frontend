@@ -8,7 +8,7 @@ svg {
 
 .highlighted {
   stroke-width: 1px;
-  stroke: #000000;
+  stroke: #212121;
 }
 
 .axis {
@@ -18,15 +18,15 @@ svg {
 }
 
 .faded {
-  opacity: 0.1;
+  opacity: 0.2;
 }
 
 .legend_container {
   background-color: #f7f8f9;
 
   .legend {
-    margin: 12px 10px;
-    padding: 7px 11px;
+    margin: 12px 0px;
+    width: 90px;
 
     background-color: #ffffff;
     border: 1px solid #dee2e6;
@@ -34,77 +34,121 @@ svg {
 
     font-size: 16px;
 
+    svg {
+      margin: 2px;
+      cursor: pointer;
+    }
+
+    .title {
+      padding: 9px 6px 6px;
+      height: 30px;
+      font-family: Inter;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 14.52px;
+      border-bottom: 1px solid #DEE2E6;
+    }
+
     ::ng-deep .field-checkbox {
-      margin: 2px 0;
+      padding: 5px 6px;
+      margin: 0;
       font-size: 14px;
-
-      .p-checkbox {
-        height: 14px;
-        width: 14px;
-
-        .p-checkbox-box {
-          height: 14px;
-          width: 14px;
-          border-width: 1px;
-          border-radius: 0;
-
-          &:hover {
-            border-color: #6C757D;
-          }
-          &.p-highlight {
-            border-color: #6C757D;
-            background-color: #6C757D;
-          }
-          &.p-focus, &.p-highlight {
-            box-shadow: none;
-          }
-
-          .p-checkbox-icon {
-            font-size: 12px;
-          }
-        }
-      }
 
       label {
         cursor: pointer;
+        margin-left: 2px;
       }
 
-      .p-avatar-circle {
-        vertical-align: middle;
-        width: 14px;
-        height: 14px;
+      .p-avatar {
+        width: 10px;
+        height: 10px;
       }
 
       .cluster_number {
-        display: inline-block;
-        padding-left: 5px;
-        position: relative;
-        top: 1px;
+        margin-left: 2px;
+        color: #495057;
+      }
+
+      .select_number {
+        font-family: Inter;
+        font-size: 12px;
+        font-weight: 400;
+        text-align: left;
+        color: #9FA9B7;
       }
     }
   }
 }
 
+.plot {
+  padding: 12px;
+}
+
 .filler {
   background-color: #f7f8f9;
-  min-width: 220px;
+  height: 130px;
+
+  .focus_restricted {
+    height: 20px;
+    font-family: Inter;
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 400;
+    text-align: center;
+    color: #00000099;
+    background-color: #F5F5F5;
+    line-height: 20px;
+  }
 
   .focus_item {
-    width: 220px;
-    margin: 12px 10px;
-    padding: 7px 11px;
+    width: 408px;
+    height: 130px;
 
     background-color: #ffffff;
     border: 1px solid #dee2e6;
     border-radius: 6px;
+
+    .focus_content {
+      padding: 6px 12px 0 12px;
+    }
+
+    .focus_point_container {
+      width: 247px;
+      height: 79px;
+    }
+
+    .foucs_info_item {
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .focus_info {
+      font-family: Inter;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 13px;
+      text-align: left;
+      color: #495057;
+      margin-left: 5px;
+    }
+
+    .cluster_desc {
+      margin-left: 5px;
+      font-family: Inter;
+      font-size: 11px;
+      font-style: italic;
+      font-weight: 400;
+      color: #9E9E9E;
+    }
 
     h3, h4 {
       margin-top: 0;
     }
 
     ::ng-deep .p-avatar-circle {
-      width: 14px;
-      height: 14px;
+      width: 13px;
+      height: 13px;
     }
   }
 }

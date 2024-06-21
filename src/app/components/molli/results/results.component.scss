@@ -39,7 +39,7 @@
             }
 
             margin: {
-                top: $padding * .2;
+                top: 6px;
             }
 
             font: {
@@ -48,6 +48,15 @@
 
             > div {
                 white-space: nowrap;
+            }
+
+            .sequence_count {
+                padding-right: 12px;
+                border-right: 1px solid #6C757D;
+            }
+
+            .p-button-sm {
+                height: 44px;
             }
         }
     }
@@ -65,6 +74,7 @@
 
         .p-button {
             white-space: nowrap;
+            height: 44px;
         }
     }
 
@@ -78,6 +88,63 @@
         &:hover {
             color: css_var(primary-color);
         }
+    }
+}
+
+::ng-deep .p-panel {
+
+    .p-panel-header {
+        padding: 14px 16px;
+    }
+
+    .p-panel-content {
+        padding: 0;
+    }
+
+    h3 {
+        color: #495057;
+        font-size: 14px;
+        line-height: 33px;
+        margin-top: 0;
+    }
+
+    .p-button {
+        height: 33px;
+    }
+}
+
+.cluster-plot-container {
+    width: 540px;
+    padding: 10px 16px;
+    background: #F7F8F9;
+
+    .clust-plot-header {
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: 700;
+        color: #343A40;
+        border-bottom: 1px dashed #343A40;
+    }
+}
+
+::ng-deep .p-paginator {
+    padding: 0;
+
+    .p-paginator-element {
+        width: 14px;
+        height: 14px;
+        min-width: 0;
+        padding: 10px;
+    }
+
+    .p-paginator-page {
+        height: 35px !important;
+        min-width: 35px !important;
+    }
+
+    .p-dropdown {
+        height: 30px;
+        align-items: center;
     }
 }
 
@@ -146,8 +213,13 @@ a:link, a:visited, a:active {
     width: 100%;
 }
 
+tr.highlighted {
+    background-color: #F5F9FF;
+}
+
 td {
   vertical-align: middle;
+  padding: 7px 16px !important;
 
   &.structure_2d {
     &:hover {

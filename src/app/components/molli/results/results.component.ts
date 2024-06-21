@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { timer, Observable, Subscription } from 'rxjs';
 import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
@@ -7,6 +7,7 @@ import { Message, SortEvent } from 'primeng/api';
 
 import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-results',
@@ -30,7 +31,7 @@ export class ResultsComponent {
   filteredRows: GeneratedStructureViewModel[] = [];
 
   clusteringMethodOptions = [
-    { name: 't-SNE', key: 'tsne' },
+    { name: 't-SNE(Default)', key: 'tsne' },
     { name: 'PCA', key: 'pca' }
   ];
   clusteringMethod = this.clusteringMethodOptions[0];
@@ -38,15 +39,22 @@ export class ResultsComponent {
   defaultNumberOfClusters: number;
   numberOfClusters: number;
   maxNumberOfClusters: number;
-  selectedClusters: number[] = []; // note that when filtering, an empty array will be treated as if the user had selected all clusters
 
   allCores: string[] = [];
+  selectedPoints: string[] = [];
   selectedCores: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all cores
   allSubstituents: string[] = [];
   selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
 
   isStructureDialogOpen = false;
   structureForDialog: GeneratedStructureViewModel|null;
+
+  isClusterSettingDialogOpen = false;
+
+  highlightedPointName: string|null = null;
+
+  @ViewChild('table') table!: Table;
+  trHeight = 130;
 
   downloadOptions = [
     { label: 'Current View', command: () => this.downloadResult('current') },
@@ -115,14 +123,14 @@ export class ResultsComponent {
           this.numberOfClusters = this.defaultNumberOfClusters;
           this.maxNumberOfClusters = clusteringData.distortions.length;
           this.allRows = [];
-          this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(result.results.structures).forEach(([name, structureData]) => {
             this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(result.jobId);
-          this.filterTable();
+          this.selectedPoints = this.allRows.map(row => row.name);
+          this.filteredRows = this.allRows;
         },
         (error: JobStatus) => {
           this.isFailed = true;
@@ -169,16 +177,15 @@ export class ResultsComponent {
   }
 
   // TODO change form to reactive
-  onFormChanged(field: 'method'|'number'|'selectedClusters'): void {
-    if (field === 'selectedClusters') {
+  onFormChanged(field: 'method'|'number'|'selectedPoints'): void {
+    if (field === 'selectedPoints') {
       this.filterTable();
     } else if (field === 'method') {
-      // currently, changing method only affects the scatterplot coordinates, not cluster assignments, etc.
-      // if that ever changes this, could handle it as we now handle the 'number' case below
-    } else if (field === 'number') {
-      this.selectedClusters = [];
       this.updateClusterAssignments();
-      this.filterTable();
+      this.resetTable();
+    } else if (field === 'number') {
+      this.updateClusterAssignments();
+      this.resetTable();
     } else {
       console.log('Unknown case' + field);
     }
@@ -191,16 +198,47 @@ export class ResultsComponent {
     });
   }
 
+  resetTable() {
+    this.selectedCores = [];
+    this.selectedSubstituents = [];
+    this.filterTable();
+  }
+
   filterTable() {
-    // create an array to look up cluster status
-    const clusterLookup: boolean[] = [];
-    for (let i = 0; i < this.numberOfClusters; i++) {
-      clusterLookup.push(this.selectedClusters.length === 0 || this.selectedClusters.includes(i));
-    }
     // create sets to look up cores and substituents
     const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
     const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
-    this.filteredRows = this.allRows.filter(row => clusterLookup[row.cluster] && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+    this.filteredRows = this.allRows.filter(row => this.selectedPoints.includes(row.name) && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+  }
+
+  isPointRestrictedByFilters(pointName: string) {
+    const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
+    const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
+    const row = this.allRows.find(row => row.name == pointName)!;
+    return !(coreLookup.has(row?.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+  }
+
+  navigateAndScollToRow(name: string, navigate = false) {
+    const index = this.filteredRows.findIndex(row => row.name == name);
+    if (navigate) {
+      this.table.first = Math.floor(index / this.table.rows) * this.table.rows;
+    }
+
+    const scrollRowNum = index - this.table.first;
+    if (scrollRowNum >= 0 && scrollRowNum < this.table.rows) {
+      console.log(Math.max(scrollRowNum - 1, 0) * this.trHeight);
+      
+      this.table.scrollTo({
+        left: 0,
+        top: Math.max(scrollRowNum - 1, 0) * this.trHeight,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  resetClusterSetting() {
+    this.numberOfClusters = this.defaultNumberOfClusters;
+    this.clusteringMethod = this.clusteringMethodOptions[0];
   }
 
   downloadResult(mode: 'current'|'complete'): void {
@@ -302,21 +340,28 @@ interface Substituent {
   count: number;
 }
 
+function getNamePieces(name: string, separator = '_') {
+  return name.split(separator);
+}
+
 function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject): GeneratedStructureViewModel {
-  const separator = '_'; // TODO make configurable and/or change
-  const namePieces = name.split(separator);
-  const core = namePieces.shift()!;
   return {
     name,
-    core,
-    substituents: namePiecesToSubtituentArray(namePieces),
+    core: getCore(name),
+    substituents: getSubtituentArray(name),
     mol2: structureData.mol2,
     svg: structureData.svg,
     cluster: clusterAssignments[name]
   };
 }
 
-function namePiecesToSubtituentArray(namePieces: string[]): Substituent[] {
+export function getCore(name: string) {
+  const namePieces = getNamePieces(name);
+  return namePieces[0];
+}
+
+export function getSubtituentArray(name: string): Substituent[] {
+  const namePieces = getNamePieces(name).slice(1);
   const returnVal: Substituent[] = [];
   const labelToCount = new Map<string, number>();
   namePieces.forEach(label => {

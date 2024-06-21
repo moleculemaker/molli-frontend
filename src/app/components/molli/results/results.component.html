@@ -9,9 +9,8 @@
 
         <div class="details">
           <!-- TODO replace counts with filenames and rename css classes -->
-          <div class="sequence_count">Number of cores: {{ allCores.length }}</div>
-          <div class="sequence_count">Number of substituents: {{ allSubstituents.length }}</div>
-          <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
+          <div class="sequence_count">Cores Submitted: {{ allCores.length }}</div>
+          <div class="sequence_count">Substituents Submitted: {{ allSubstituents.length }}</div>
         </div>
       </div>
 
@@ -21,6 +20,8 @@
         <!-- <button pButton label="Cancel" class="p-button-outlined p-button-secondary p-button-xs"></button> -->
         <a pButton label="Run a New Request" icon="pi pi-plus" class="p-button-outlined p-button-sm"
            target="_blank" [routerLink]="['/configuration']"></a>
+        
+        <p-splitButton label="Export" icon="pi pi-download" class="p-button-sm" (onClick)="downloadResult('current')" [model]="downloadOptions"></p-splitButton>
       </div>
     </div>
 
@@ -41,82 +42,112 @@
     </div>
 
     <ng-container *ngIf="result">
-      <p-panel *ngIf="!isFailed" styleClass="mb-5" [toggleable]="true">
-        <ng-template pTemplate="header"><h3>Data Clustering</h3></ng-template>
-        <p class="mt-2 mb-3">Number of Clusters: <p-inputNumber [(ngModel)]="numberOfClusters" [min]="1" [max]="maxNumberOfClusters" [inputStyle]="{ width: '2.5rem', padding: '0.3rem 0.6rem', 'text-align': 'right' }" [pTooltip]="'Change the number of clusters with this control or by clicking on the plot below'" (change)="onNumberOfClustersChanged(numberOfClusters)"></p-inputNumber></p>
-        <app-cluster-elbow-plot [selectedNumberOfClusters]="numberOfClusters" (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
-                                [distortions]="getCurrentClusteringData().distortions" [knee]="defaultNumberOfClusters"></app-cluster-elbow-plot>
-        <div class="mt-5 mb-3 flex align-content-center gap-2">
-          <p class="flex align-items-center">Cluster Visualization:</p>
-          <p-selectButton [options]="clusteringMethodOptions" styleClass="clustering_mode_selector" [(ngModel)]="clusteringMethod" optionLabel="name" (onChange)="onFormChanged('method')"></p-selectButton>
-        </div>
-        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
-                                 [structureDetails]="allRows" [mode]="$any(clusteringMethod.key)"
-                                 [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
-      </p-panel>
-      <p-table *ngIf="!isFailed" #table [value]="filteredRows" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
-               (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'name'" [sortOrder]="1"
-               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
-        <ng-template pTemplate="caption">
-          <div class="table_caption">
-            <div class="info">
-              <h3>Generated Structures</h3>
-              <!--
-turned this off, since only totalRecords appears to be accessible from the #table reference...will be shown in the bottom instead
-              <h5 class="count">Showing {{table.first}} - {{table.last}} of {{table.totalRecords}} results</h5>
--->
-            </div>
+      <p-panel *ngIf="!isFailed" styleClass="mb-5">
+        <ng-template pTemplate="header">
+          <div class ="flex flex-grow-1 justify-content-between">
+            <h3>Generated Structures</h3>
             <div class="flex gap-2">
               <p-overlayPanel #filterPanel [showCloseIcon]="true">
                 <p class="mb-3">Selected Cores:</p>
                 <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable()"
-                               defaultLabel="Select one or more cores" display="chip"></p-multiSelect>
+                              defaultLabel="Select one or more cores" display="chip"></p-multiSelect>
                 <p class="mt-6 mb-3">Selected Substituents:</p>
                 <p-multiSelect [options]="allSubstituents" [(ngModel)]="selectedSubstituents" (onChange)="filterTable()"
-                               defaultLabel="Select one or more substituents" display="chip"></p-multiSelect>
+                              defaultLabel="Select one or more substituents" display="chip"></p-multiSelect>
               </p-overlayPanel>
               <button pButton label="Filter" icon="pi pi-search" class="p-button-outlined"
                       (click)="filterPanel.toggle($event)"></button>
-
-
-              <p-splitButton label="Download Results" icon="pi pi-download" class="p-button-sm" (onClick)="downloadResult('current')" [model]="downloadOptions"></p-splitButton>
+              <button pButton label="Re-set All" class="p-button-outlined" (click)="resetTable"></button>
             </div>
           </div>
         </ng-template>
+        <div class="flex">
+          
+          <div class="cluster-plot-container">
+            <div class="flex justify-content-between">
+              <div class="clust-plot-header">Data Clustering</div>
+              <i class="pi pi-cog" style="font-size: 16px; cursor: pointer;" (click)="isClusterSettingDialogOpen=true"></i>
+            </div>
+            <app-cluster-scatterplot 
+              [data]="result.results!.clusteringData[clusteringMethod.key]" 
+              [numberOfClusters]="numberOfClusters"
+              [structureDetails]="allRows"
+              [mode]="$any(clusteringMethod.key)"
+              [(selectedPoints)]="selectedPoints"
+              (selectedPointsChange)="onFormChanged('selectedPoints')"
+              [(highlightedPointName)]="highlightedPointName"
+              [checkRestrict] = "isPointRestrictedByFilters.bind(this)"
+              [handleScroll] = "navigateAndScollToRow.bind(this)"
+            />
+          </div>
+          
+          <p-table 
+            *ngIf="!isFailed" #table [value]="filteredRows" [scrollable]="true" scrollHeight="650px" class="flex-grow-1"
+            [rows]="10" [rowsPerPageOptions]="[10,25,50]" [paginator]="true"
+            (sortFunction)="customSort($event)" [customSort]="true" [sortField]="'cluster'" [sortOrder]="1"
+            [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="cluster">Cluster
+                  <p-sortIcon field="cluster"></p-sortIcon>
+                </th>
+                <th pSortableColumn="name">ID & Structures
+                  <p-sortIcon field="name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="core">Core
+                  <p-sortIcon field="core"></p-sortIcon>
+                </th>
+                <th pSortableColumn="substituents">Substituents
+                  <p-sortIcon field="substituents"></p-sortIcon>
+                </th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
 
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="name">Generated Name
-              <p-sortIcon field="name"></p-sortIcon>
-            </th>
-            <th pSortableColumn="core">Core
-              <p-sortIcon field="core"></p-sortIcon>
-            </th>
-            <th pSortableColumn="substituents">Substituents
-              <p-sortIcon field="substituents"></p-sortIcon>
-            </th>
-            <th>Structure</th>
-            <th pSortableColumn="cluster">Cluster Identifier
-              <p-sortIcon field="cluster"></p-sortIcon>
-            </th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td>{{row.name}}</td>
-            <td>{{row.core}}</td>
-            <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
-            <td class="structure_2d"><app-molecule2d (click)="openStructureDialog(row)" [svg]="row.svg" [height]="150" [width]="150"></app-molecule2d></td>
-            <td>{{row.cluster}}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-
-      <div class="failJob" *ngIf="isFailed">
-        <p-messages [(value)]="jobFailedMessages" [enableService]="false" [closable]="false"></p-messages>
-      </div>
+            <ng-template pTemplate="body" let-row>
+              <tr (mouseenter)="highlightedPointName = row.name" (mouseleave)="highlightedPointName = null" [class.highlighted]="highlightedPointName == row.name" [ngStyle]="{'height': trHeight+'px'}">
+                <td>{{row.cluster}}</td>
+                <td>
+                  {{row.name}}
+                  <div class="structure_2d"><app-molecule2d (click)="openStructureDialog(row)" [svg]="row.svg" [height]="100" [width]="100"></app-molecule2d></div>
+                </td>
+                <td>{{row.core}}</td>
+                <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
+                <td>
+                  <i class="pi pi-bookmark mr-3"></i>
+                  <i class="pi pi-eye-slash"></i>
+                </td>
+              </tr>
+            </ng-template>
+            </p-table>
+        </div>
+      </p-panel>
     </ng-container>
+
+    <p-dialog header="Data Clustering Setting" [(visible)]="isClusterSettingDialogOpen" [modal]="true" [style]="{ width: '75vw' }" [draggable]="false" [resizable]="false">
+      <h3>Cluster Methods:</h3>
+      <div *ngFor="let option of clusteringMethodOptions" class="field-checkbox mt-3">
+        <p-radioButton [inputId]="option.key" [name]="option.name" [value]="option" [(ngModel)]="clusteringMethod"></p-radioButton>
+        <label [for]="option.key" class="ml-2">{{ option.name }}</label>
+      </div>
+      <h3 class="mb-3">Select cluster number:</h3>
+      <app-cluster-elbow-plot
+        [selectedNumberOfClusters]="numberOfClusters" 
+        (selectedNumberOfClustersChange)="onNumberOfClustersChanged($event)"
+        [distortions]="getCurrentClusteringData().distortions" 
+        [knee]="defaultNumberOfClusters"
+      />
+      <ng-template pTemplate="footer">
+        <p-button label="Reset Selection" styleClass="p-button-outlined" (onClick)="resetClusterSetting()" />
+        <p-button label="Save Changes" (onClick)="isClusterSettingDialogOpen = false" />
+      </ng-template>
+    </p-dialog>
+     
+
+    <div class="failJob" *ngIf="isFailed">
+      <p-messages [(value)]="jobFailedMessages" [enableService]="false" [closable]="false"></p-messages>
+    </div>
   </div>
 </div>
 

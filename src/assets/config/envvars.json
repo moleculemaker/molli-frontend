@@ -1,5 +1,5 @@
 {
-  "hostname": "http://localhost:8888",
+  "hostname": "http://localhost:8080",
   "localhostname": "http://jobmgr.proxy.localhost",
   "basePath": "/api/v1",
 

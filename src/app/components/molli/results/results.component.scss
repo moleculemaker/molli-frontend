@@ -113,6 +113,49 @@
     }
 }
 
+.filter-num {
+    width: 18px;
+    height: 18px;
+    background-color: #224063;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 10.5px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+::ng-deep .p-overlaypanel-content {
+    padding: 0 !important;
+    .clustering_panel {
+        padding: 0 21px;
+        border-bottom: 1px solid #DEE2E6;
+        .cluster-desc {
+            font-family: Inter;
+            font-size: 14px;
+            font-style: italic;
+            font-weight: 400;
+            line-height: 21px;
+            text-align: left;
+            color: #6C757D;
+        }
+    }
+
+    .molecules_panel {
+        padding: 0 21px;
+        border-bottom: 1px solid #DEE2E6;
+        padding-bottom: 1.5rem;
+    }
+
+    .other_panel {
+        padding: 0 21px;
+    }
+
+    .footer_panel {
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+}
+
 .cluster-plot-container {
     width: 540px;
     padding: 10px 16px;

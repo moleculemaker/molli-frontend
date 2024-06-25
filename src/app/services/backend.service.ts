@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,7 +10,10 @@ import {
   JobResult,
   JobStatus,
   LibraryResults,
-  JobFileData
+  JobFileData,
+  SaveMoleculeResponse,
+  SaveMoleculeRequest,
+  SavedMolecule
 } from 'src/app/models';
 import { EnvVars } from "src/app/models/envvars";
 import { EnvironmentService } from "./environment.service";
@@ -102,6 +105,37 @@ export class BackendService {
         results
       }))
     );
+  }
+
+  getSavedMolecules(email: string, jobId: string) {
+    // const url = `${this.hostname}/${this.apiBasePath}/molli/saved_molecules?email=${email}&job_id=${this.isExampleJob(jobId) ? "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : jobId}`;
+    const url = `${this.hostname}/molli/saved_molecules?email=${email}&job_id=${this.isExampleJob(jobId) ? "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : jobId}`;
+    return this.http.get<SavedMolecule[]>(url, { withCredentials: true });
+  }
+
+  saveMolecule(data: SaveMoleculeRequest) {    
+    const params = {
+      email: data.email,
+      job_id: this.isExampleJob(data.jobId) ?  "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : data.jobId,
+      molecule_id: data.moleculeId
+    };
+    // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
+    return this.http.post<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecules`, params, { withCredentials: true });
+  }
+
+  unSaveMolecule(data: SaveMoleculeRequest) {    
+    const params = {
+      email: data.email,
+      job_id: this.isExampleJob(data.jobId) ?  "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : data.jobId,
+      molecule_id: data.moleculeId
+    };
+    // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
+    return this.http.delete<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecules`, {
+        headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: params 
+    });
   }
 
 }

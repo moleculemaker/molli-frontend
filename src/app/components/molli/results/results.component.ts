@@ -1,18 +1,21 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { timer, Observable, Subscription } from 'rxjs';
-import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
+import { delayWhen, filter, map, retryWhen, switchMap, take, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
 import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
 import { Table } from 'primeng/table';
+import { UserInfoService } from 'src/app/services/user-info.service';
 
 @Component({
   selector: 'app-results',
   templateUrl: './results.component.html',
-  styleUrls: ['./results.component.scss']
+  styleUrls: ['./results.component.scss'],
+  providers: [MessageService]
 })
 export class ResultsComponent {
   subscriptions: Subscription[] = [];
@@ -60,10 +63,16 @@ export class ResultsComponent {
     { label: 'Current View', command: () => this.downloadResult('current') },
     { label: 'Complete Results', command: () => this.downloadResult('complete') }
   ];
+  userEmail: string;
+  savedMolecules: Set<string> = new Set();
+
+  isShowSavedMoleculesOnly = false;
 
   constructor(
     private route: ActivatedRoute,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private userInfoService: UserInfoService,
+    private messageService: MessageService
   ) {
     this.preComputedMessages = [
       { severity: 'info', detail: 'This is a pre-computed result for the example data. To see real-time computation, click the "Run a new Request" button and use the "Copy and Paste" input method.' },
@@ -140,6 +149,14 @@ export class ResultsComponent {
   }
 
   ngOnInit(): void {
+    this.userInfoService.userInfo?.pipe(take(1)).subscribe((userInfo) => {
+      this.userEmail = userInfo?.email || "";
+      this.subscriptions.push(
+        this.backendService.getSavedMolecules(this.userEmail, this.jobId).subscribe((result) => {
+          this.savedMolecules = new Set(result.map(molecule => molecule.molecule_id));
+        })
+      )
+    });
   }
 
   getClusteringDataForMode(mode: ClusteringMode): ClusteringData {
@@ -198,24 +215,41 @@ export class ResultsComponent {
     });
   }
 
-  resetTable() {
+  resetFilter() {
     this.selectedCores = [];
     this.selectedSubstituents = [];
+    this.isShowSavedMoleculesOnly = false;
     this.filterTable();
   }
 
-  filterTable() {
-    // create sets to look up cores and substituents
+  resetTable() {
+    this.selectedCores = [];
+    this.selectedSubstituents = [];
+    this.isShowSavedMoleculesOnly = false;
+    this.selectedPoints = this.allRows.map(row => row.name);
+    this.filterTable();
+  }
+
+  applyAdditionalFilters(row: GeneratedStructureViewModel) {
+    // create sets to look up cores and substituents    
     const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
     const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
-    this.filteredRows = this.allRows.filter(row => this.selectedPoints.includes(row.name) && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+    const saveMoleculesLookup = (row: GeneratedStructureViewModel) => {
+      if (!this.isShowSavedMoleculesOnly) {
+        return true;
+      }
+      return this.savedMolecules.has(row.name);
+    }
+    return coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)) && saveMoleculesLookup(row);
+  }
+
+  filterTable() {
+    this.filteredRows = this.allRows.filter(row => this.selectedPoints.includes(row.name) && this.applyAdditionalFilters(row));
   }
 
   isPointRestrictedByFilters(pointName: string) {
-    const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
-    const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
     const row = this.allRows.find(row => row.name == pointName)!;
-    return !(coreLookup.has(row?.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+    return !this.applyAdditionalFilters(row);
   }
 
   navigateAndScollToRow(name: string, navigate = false) {
@@ -225,9 +259,7 @@ export class ResultsComponent {
     }
 
     const scrollRowNum = index - this.table.first;
-    if (scrollRowNum >= 0 && scrollRowNum < this.table.rows) {
-      console.log(Math.max(scrollRowNum - 1, 0) * this.trHeight);
-      
+    if (scrollRowNum >= 0 && scrollRowNum < this.table.rows) {      
       this.table.scrollTo({
         left: 0,
         top: Math.max(scrollRowNum - 1, 0) * this.trHeight,
@@ -239,6 +271,38 @@ export class ResultsComponent {
   resetClusterSetting() {
     this.numberOfClusters = this.defaultNumberOfClusters;
     this.clusteringMethod = this.clusteringMethodOptions[0];
+  }
+
+  saveMolecule(row: GeneratedStructureViewModel) {
+    this.backendService.saveMolecule({
+      email: this.userEmail,
+      jobId: this.jobId,
+      moleculeId: row.name,
+    }).subscribe((result) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
+      this.savedMolecules.add(row.name);
+    }, ({ error }) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+    });
+  }
+
+  unSaveMolecule(row: GeneratedStructureViewModel) {
+    this.backendService.unSaveMolecule({
+      email: this.userEmail,
+      jobId: this.jobId,
+      moleculeId: row.name,
+    }).subscribe((result) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
+      this.savedMolecules.delete(row.name);
+    }, ({ error }) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+    });
+  }
+
+  hideMolecule(row: GeneratedStructureViewModel) {
+    const index = this.selectedPoints.findIndex(point => point == row.name);
+    this.selectedPoints = [...this.selectedPoints.slice(0, index), ...this.selectedPoints.slice(index + 1)];
+    this.filterTable();
   }
 
   downloadResult(mode: 'current'|'complete'): void {

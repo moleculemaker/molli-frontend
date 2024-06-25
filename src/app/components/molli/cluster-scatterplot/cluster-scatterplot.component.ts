@@ -94,6 +94,28 @@ export class ClusterScatterplotComponent implements OnChanges {
     if (changes["data"] || changes["numberOfClusters"]) {
       this.draw();
     }
+    if (changes["selectedPoints"]) {
+      if (this.selectedPoints.length == this.points.length) {
+        // Reset-all
+        this.points.forEach(point => point.isSelected = true);
+        this.clusters.forEach(cluster => cluster.isSelected = 1);
+        this.allClusterSelected = 1;
+      } else {
+        // hide in the table
+        this.points.forEach(point => point.isSelected = this.selectedPoints.includes(point.name));
+        this.clusters.forEach(cluster => {
+          const selectedPointsCntInCluster = this.getSelectedPointsCntInCluster(cluster); 
+          if (selectedPointsCntInCluster == 0) {
+            cluster.isSelected = 0;
+          } else if (selectedPointsCntInCluster == cluster.pointCount) {
+            cluster.isSelected = 1;
+          } else {
+            cluster.isSelected = 2;
+          }
+        })
+        this.onClusterChange();
+      }
+    }
   }
 
   draw(): void {
@@ -190,12 +212,12 @@ export class ClusterScatterplotComponent implements OnChanges {
     }
     point.isSelected = !point.isSelected;
     if (point.cluster.isSelected == 2) {
-      const selectedPointsNumInCluster = this.getSelectedPointsNumInCluster(point.cluster);
-      if (selectedPointsNumInCluster == 0) {
+      const selectedPointsCntInCluster = this.getSelectedPointsCntInCluster(point.cluster);
+      if (selectedPointsCntInCluster == 0) {
         point.cluster.isSelected = 0;
         this.onClusterChange();
       }
-      if (selectedPointsNumInCluster == point.cluster.pointCount) {
+      if (selectedPointsCntInCluster == point.cluster.pointCount) {
         point.cluster.isSelected = 1;
         this.onClusterChange();
       }
@@ -211,7 +233,7 @@ export class ClusterScatterplotComponent implements OnChanges {
     }
   }
 
-  getSelectedPointsNumInCluster(cluster: Cluster) {
+  getSelectedPointsCntInCluster(cluster: Cluster) {
     return this.points.filter(point => point.cluster.index === cluster.index && point.isSelected).length;
   }
 

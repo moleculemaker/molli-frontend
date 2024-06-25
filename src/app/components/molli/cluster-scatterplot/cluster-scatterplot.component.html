@@ -15,7 +15,7 @@
         <p-avatar [class.faded]="isClusterFaded(cluster)" [style]="{ 'background-color': cluster.color }" shape="circle"></p-avatar>
         <div class="cluster_number">{{ cluster.index }}</div>
       </div>
-      <div class="select_number">{{ getSelectedPointsNumInCluster(cluster) }}/{{ cluster.pointCount }}</div>
+      <div class="select_number">{{ getSelectedPointsCntInCluster(cluster) }}/{{ cluster.pointCount }}</div>
     </div>
   </div>
   <div class="plot">

@@ -1,15 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { timer, Observable, Subscription } from 'rxjs';
-import { delayWhen, filter, map, retryWhen, switchMap, take, tap } from "rxjs/operators";
+import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 
-import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
+import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, SavedMolecule, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
 import { Table } from 'primeng/table';
-import { UserInfoService } from 'src/app/services/user-info.service';
+import { UserInfo, UserInfoService } from 'src/app/services/user-info.service';
 
 @Component({
   selector: 'app-results',
@@ -63,10 +63,11 @@ export class ResultsComponent {
     { label: 'Current View', command: () => this.downloadResult('current') },
     { label: 'Complete Results', command: () => this.downloadResult('complete') }
   ];
-  userEmail: string;
-  savedMolecules: Set<string> = new Set();
 
+  userInfo: UserInfo | undefined;
   isShowSavedMoleculesOnly = false;
+  savedMolecules: SavedMolecule[] = [];
+  savedMoleculeIds: Set<string> = new Set();
 
   constructor(
     private route: ActivatedRoute,
@@ -74,6 +75,9 @@ export class ResultsComponent {
     private userInfoService: UserInfoService,
     private messageService: MessageService
   ) {
+  }
+
+  ngOnInit(): void {
     this.preComputedMessages = [
       { severity: 'info', detail: 'This is a pre-computed result for the example data. To see real-time computation, click the "Run a new Request" button and use the "Copy and Paste" input method.' },
     ];
@@ -114,6 +118,13 @@ export class ResultsComponent {
     );
 
     this.subscriptions.push(
+      this.backendService.getSavedMolecules(this.jobId).subscribe((result) => {
+        this.savedMolecules = result;
+        this.savedMoleculeIds = new Set(result.map(molecule => molecule.molecule_id));
+      })
+    )
+
+    this.subscriptions.push(
       finalStatus$.pipe(
         switchMap((status: JobStatus) => {
           if (status.status === 'failed') {
@@ -146,17 +157,12 @@ export class ResultsComponent {
         }
       )
     );
-  }
 
-  ngOnInit(): void {
-    this.userInfoService.userInfo?.pipe(take(1)).subscribe((userInfo) => {
-      this.userEmail = userInfo?.email || "";
-      this.subscriptions.push(
-        this.backendService.getSavedMolecules(this.userEmail, this.jobId).subscribe((result) => {
-          this.savedMolecules = new Set(result.map(molecule => molecule.molecule_id));
-        })
-      )
-    });
+    this.subscriptions.push(
+      this.userInfoService.userInfo.subscribe(userInfo => {
+        this.userInfo = userInfo;
+      })
+    )
   }
 
   getClusteringDataForMode(mode: ClusteringMode): ClusteringData {
@@ -238,7 +244,7 @@ export class ResultsComponent {
       if (!this.isShowSavedMoleculesOnly) {
         return true;
       }
-      return this.savedMolecules.has(row.name);
+      return this.savedMoleculeIds.has(row.name);
     }
     return coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)) && saveMoleculesLookup(row);
   }
@@ -273,27 +279,35 @@ export class ResultsComponent {
     this.clusteringMethod = this.clusteringMethodOptions[0];
   }
 
+  get saveMoleculeToolTip() {
+    if (this.isExample && !this.userInfo) {
+      return "Sign In to save this molecule";
+    }
+    return "Save this molecule"
+  }
+
   saveMolecule(row: GeneratedStructureViewModel) {
+    // if (this.isExample && !this.userInfo) {
+    //   this.userInfoService.login();
+    //   return;
+    // }
     this.backendService.saveMolecule({
-      email: this.userEmail,
       jobId: this.jobId,
       moleculeId: row.name,
     }).subscribe((result) => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
-      this.savedMolecules.add(row.name);
-    }, ({ error }) => {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+      this.savedMoleculeIds.add(row.name);
+    }, (error) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
     });
   }
 
   unSaveMolecule(row: GeneratedStructureViewModel) {
     this.backendService.unSaveMolecule({
-      email: this.userEmail,
-      jobId: this.jobId,
-      moleculeId: row.name,
+     id: this.savedMolecules.find(molecule => molecule.molecule_id == row.name)?.id
     }).subscribe((result) => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
-      this.savedMolecules.delete(row.name);
+      this.savedMoleculeIds.delete(row.name);
     }, ({ error }) => {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
     });

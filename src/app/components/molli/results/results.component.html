@@ -135,9 +135,8 @@
                 <td>{{row.core}}</td>
                 <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>
                 <td>
-                  <p-toast></p-toast>
-                  <i class="pi pi-bookmark mr-3" *ngIf="!savedMolecules.has(row.name)" (click)="saveMolecule(row)" [style]="{'cursor': 'pointer'}" pTooltip="Save this molecule"></i>
-                  <i class="pi pi-bookmark-fill mr-3" *ngIf="savedMolecules.has(row.name)" (click)="unSaveMolecule(row)" [style]="{'cursor': 'pointer'}" pTooltip="Unsave this molecule"></i>
+                  <i class="pi pi-bookmark mr-3" *ngIf="!savedMoleculeIds.has(row.name)" (click)="saveMolecule(row)" [style]="{'cursor': 'pointer'}" [pTooltip]="saveMoleculeToolTip"></i>
+                  <i class="pi pi-bookmark-fill mr-3" *ngIf="savedMoleculeIds.has(row.name)" (click)="unSaveMolecule(row)" [style]="{'cursor': 'pointer'}" pTooltip="Unsave this molecule"></i>
                   <i class="pi pi-eye-slash" [style]="{'cursor': 'pointer'}" pTooltip="Hide this molecule from the current table" (click)="hideMolecule(row)"></i>
                 </td>
               </tr>
@@ -146,6 +145,7 @@
         </div>
       </p-panel>
 
+      <p-toast></p-toast>
       <p-dialog header="Data Clustering Setting" [(visible)]="isClusterSettingDialogOpen" [modal]="true" [style]="{ width: '75vw' }" [draggable]="false" [resizable]="false">
         <h3>Cluster Methods:</h3>
         <div *ngFor="let option of clusteringMethodOptions" class="field-checkbox mt-3">

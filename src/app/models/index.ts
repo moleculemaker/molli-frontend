@@ -68,15 +68,15 @@ export interface ClusteringData {
 }
 
 export interface SavedMolecule {
-  email: string,
+  id: number,
   job_id: string,
   molecule_id: string
 }
 
 export interface SaveMoleculeRequest {
-  email: string,
-  jobId: string,
-  moleculeId: string
+  id?: number;
+  jobId?: string,
+  moleculeId?: string
 }
 
 export interface SaveMoleculeResponse {

@@ -107,34 +107,30 @@ export class BackendService {
     );
   }
 
-  getSavedMolecules(email: string, jobId: string) {
-    // const url = `${this.hostname}/${this.apiBasePath}/molli/saved_molecules?email=${email}&job_id=${this.isExampleJob(jobId) ? "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : jobId}`;
-    const url = `${this.hostname}/molli/saved_molecules?email=${email}&job_id=${this.isExampleJob(jobId) ? "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : jobId}`;
+  getSavedMolecules(jobId: string) {
+    // const url = `${this.hostname}/${this.apiBasePath}/molli/saved_molecule?job_id=${jobId}`;
+    const url = `${this.hostname}/molli/saved_molecule?job_id=${jobId}`;
     return this.http.get<SavedMolecule[]>(url, { withCredentials: true });
   }
 
-  saveMolecule(data: SaveMoleculeRequest) {    
+  saveMolecule(data: SaveMoleculeRequest) {
     const params = {
-      email: data.email,
-      job_id: this.isExampleJob(data.jobId) ?  "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : data.jobId,
+      job_id: data.jobId,
       molecule_id: data.moleculeId
     };
     // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
-    return this.http.post<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecules`, params, { withCredentials: true });
+    return this.http.post<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecule`, params, {
+      withCredentials: true 
+    });
   }
 
   unSaveMolecule(data: SaveMoleculeRequest) {    
-    const params = {
-      email: data.email,
-      job_id: this.isExampleJob(data.jobId) ?  "b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78" : data.jobId,
-      molecule_id: data.moleculeId
-    };
     // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
-    return this.http.delete<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecules`, {
+    return this.http.delete<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecule`, {
         headers: new HttpHeaders({
         'Content-Type': 'application/json',
       }),
-      body: params 
+      body: data 
     });
   }
 

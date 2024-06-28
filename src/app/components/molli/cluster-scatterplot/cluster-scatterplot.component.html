@@ -11,7 +11,6 @@
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path [attr.d]="selectedClusterPath[cluster.isSelected].path" [attr.fill]="selectedClusterPath[cluster.isSelected].fill" [style]="{ 'opacity': allClusterSelected == 1 ? '0.2': 1 }"/>
         </svg>
-        <!-- <p-checkbox name="group" [value]="cluster.index" [(ngModel)]="selectedClusterIndices" [inputId]="'cluster'+cluster.index" (onChange)="selectedClusterIndicesChange.emit(selectedClusterIndices)"></p-checkbox> -->
         <p-avatar [class.faded]="isClusterFaded(cluster)" [style]="{ 'background-color': cluster.color }" shape="circle"></p-avatar>
         <div class="cluster_number">{{ cluster.index }}</div>
       </div>

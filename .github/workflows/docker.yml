@@ -15,6 +15,10 @@ on:
       - main
       - develop
 
+  # Allow user to manually trigger
+  workflow_dispatch:
+
+  # Trigger when a new pull request is created/updated
   pull_request:
 
   # Trigger the workflow on release activity

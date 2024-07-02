@@ -287,10 +287,10 @@ export class ResultsComponent {
   }
 
   saveMolecule(row: GeneratedStructureViewModel) {
-    // if (this.isExample && !this.userInfo) {
-    //   this.userInfoService.login();
-    //   return;
-    // }
+    if (this.isExample && !this.userInfo) {
+      this.userInfoService.login();
+      return;
+    }
     this.backendService.saveMolecule({
       jobId: this.jobId,
       moleculeId: row.name,

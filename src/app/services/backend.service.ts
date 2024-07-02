@@ -108,8 +108,7 @@ export class BackendService {
   }
 
   getSavedMolecules(jobId: string) {
-    // const url = `${this.hostname}/${this.apiBasePath}/molli/saved_molecule?job_id=${jobId}`;
-    const url = `${this.hostname}/molli/saved_molecule?job_id=${jobId}`;
+    const url = `${this.hostname}/${this.apiBasePath}/molli/saved_molecule?job_id=${jobId}`;
     return this.http.get<SavedMolecule[]>(url, { withCredentials: true });
   }
 
@@ -118,15 +117,13 @@ export class BackendService {
       job_id: data.jobId,
       molecule_id: data.moleculeId
     };
-    // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
-    return this.http.post<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecule`, params, {
+    return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/saved_molecule`, params, {
       withCredentials: true 
     });
   }
 
   unSaveMolecule(data: SaveMoleculeRequest) {    
-    // return this.http.post<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/save_molecule`, params, { withCredentials: true });
-    return this.http.delete<SaveMoleculeResponse>(`${this.hostname}/molli/saved_molecule`, {
+    return this.http.delete<SaveMoleculeResponse>(`${this.hostname}/${this.apiBasePath}/molli/saved_molecule`, {
         headers: new HttpHeaders({
         'Content-Type': 'application/json',
       }),

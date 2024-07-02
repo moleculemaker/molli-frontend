@@ -26,6 +26,12 @@ spec:
               configMapKeyRef:
                 name: {{ .Release.Name }}-config
                 key: hostname
+          
+          - name: MMLI_BACKEND_API_HOSTNAME
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-config
+                key: mmliHostname
 
           - name: JOB_MANAGER_API_BASEPATH
             valueFrom:

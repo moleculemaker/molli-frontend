@@ -26,7 +26,7 @@ export class BackendService {
 
   private envs: EnvVars;
 
-  get hostname() {
+  get hostname() {    
     return this.envs?.hostname || 'https://jobmgr.mmli1.ncsa.illinois.edu';
   }
   get apiBasePath() {

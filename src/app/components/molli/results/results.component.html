@@ -11,6 +11,7 @@
           <!-- TODO replace counts with filenames and rename css classes -->
           <div class="sequence_count">Cores Submitted: {{ allCores.length }}</div>
           <div class="sequence_count">Substituents Submitted: {{ allSubstituents.length }}</div>
+          <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
         </div>
       </div>
 

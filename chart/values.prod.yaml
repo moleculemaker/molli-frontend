@@ -11,6 +11,7 @@ ingress:
 
 config:
   hostname: "https://jobmgr.platform.moleculemaker.org"
+  mmliHostname: "https://mmli.fastapi.mmli1.ncsa.illinois.edu"
   basePath: "api/v1"
   signInUrl: "https://auth.platform.moleculemaker.org/oauth2/start?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"
   signOutUrl: "https://auth.platform.moleculemaker.org/oauth2/sign_out?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"

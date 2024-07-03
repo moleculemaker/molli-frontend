@@ -130,7 +130,8 @@ export class BackendService {
         headers: new HttpHeaders({
         'Content-Type': 'application/json',
       }),
-      body: data 
+      body: data,
+      withCredentials: true
     });
   }
 

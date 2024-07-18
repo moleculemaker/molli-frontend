@@ -294,9 +294,12 @@ export class ResultsComponent {
     this.backendService.saveMolecule({
       jobId: this.jobId,
       moleculeId: row.name,
-    }).subscribe((result) => {
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
-      this.savedMoleculeIds.add(row.name);
+    }).subscribe((res) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+      this.backendService.getSavedMolecules(this.jobId).subscribe((result) => {
+        this.savedMolecules = result;
+        this.savedMoleculeIds = new Set(result.map(molecule => molecule.molecule_id));
+      })
     }, (error) => {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
     });

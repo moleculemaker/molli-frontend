@@ -10,8 +10,8 @@ ingress:
     traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
 
 config:
-  hostname: "https://jobmgr.platform.moleculemaker.org"
-  basePath: "api/v1"
+  hostname: "https://mmli.fastapi.mmli1.ncsa.illinois.edu"
+  basePath: ""
   signInUrl: "https://auth.platform.moleculemaker.org/oauth2/start?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"
   signOutUrl: "https://auth.platform.moleculemaker.org/oauth2/sign_out?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"
   userInfoUrl: "https://auth.platform.moleculemaker.org/oauth2/userinfo"

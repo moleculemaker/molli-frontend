@@ -11,7 +11,7 @@
           <!-- TODO replace counts with filenames and rename css classes -->
           <div class="sequence_count">Number of cores: {{ allCores.length }}</div>
           <div class="sequence_count">Number of substituents: {{ allSubstituents.length }}</div>
-          <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
+          <div class="sequence_time" *ngIf="(status$ | async)?.created_at">Submission Time: {{ (status$ | async)?.created_at | date:'short' }}</div>
         </div>
       </div>
 
@@ -50,7 +50,7 @@
           <p class="flex align-items-center">Cluster Visualization:</p>
           <p-selectButton [options]="clusteringMethodOptions" styleClass="clustering_mode_selector" [(ngModel)]="clusteringMethod" optionLabel="name" (onChange)="onFormChanged('method')"></p-selectButton>
         </div>
-        <app-cluster-scatterplot [data]="result.results!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
+        <app-cluster-scatterplot [data]="result!.clusteringData[clusteringMethod.key]" [numberOfClusters]="numberOfClusters"
                                  [structureDetails]="allRows" [mode]="$any(clusteringMethod.key)"
                                  [(selectedClusterIndices)]="selectedClusters" (selectedClusterIndicesChange)="onFormChanged('selectedClusters')"></app-cluster-scatterplot>
       </p-panel>

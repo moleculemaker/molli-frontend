@@ -7,7 +7,6 @@ import {
   EmailPostResponse,
   JobPostResponse,
   JobPostRequest,
-  JobResult,
   JobStatus,
   LibraryResults,
   JobFileData
@@ -97,16 +96,8 @@ export class BackendService {
     }]);
   }
 
-  getExampleJobResult(key: ExampleKey): Observable<JobResult> {
-    return this.http.get<LibraryResults>('assets/' + key + '.json').pipe(
-      map((results) => ({
-        jobId: key,
-        url: "mmli.clean.com/jobId/b01f8a6b-2f3e-4160-8f5d-c9a2c5eead78",
-        status: "completed", // TODO replace with string enum
-        created_at: "2023-06-12 10:10:10",
-        results
-      }))
-    );
+  getExampleJobResult(key: ExampleKey): Observable<LibraryResults> {
+    return this.http.get<LibraryResults>('assets/' + key + '.json');
   }
 
 }

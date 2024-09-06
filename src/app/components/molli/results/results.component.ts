@@ -5,7 +5,7 @@ import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operator
 
 import { Message, SortEvent } from 'primeng/api';
 
-import {ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, LibraryResults, Structure} from "src/app/models";
+import {ClusterAssignmentObject, ClusteringData, JobStatus, LibraryResults, Structure} from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
 import {Job} from "../../../api/mmli-backend/v1";
 
@@ -19,7 +19,7 @@ export class ResultsComponent {
 
   jobId: string;
   status$: Observable<JobStatus>;
-  result: JobResult | null = null;
+  result: LibraryResults | null = null;
 
   // TODO later: clean up messages code
   isFailed: boolean = false;
@@ -107,8 +107,9 @@ export class ResultsComponent {
           return this.backendService.getJobResult(job?.job_id!)
         })
       ).subscribe(
-        (result) => {
-          const results = JSON.parse(result) as LibraryResults;
+        (results: any) => {
+
+          this.result = results;
 
           // note the default number of clusters is the same regardless of dimensionality reduction technique
           // in fact, the choice of dimensionality reduction technique will only affect the scatterplot coordinates, not
@@ -121,7 +122,7 @@ export class ResultsComponent {
           this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(results.structures).forEach(([name, structureData]) => {
-            this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject));
+            this.allRows.push(generatedStructureToViewModel(name, structureData as any, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
           this.isExample = this.backendService.isExampleJob(this.jobId);
@@ -138,7 +139,7 @@ export class ResultsComponent {
   }
 
   getClusteringDataForMode(mode: ClusteringMode): ClusteringData {
-    return this.result!.results.clusteringData[this.clusteringMethod.key];
+    return this.result!.clusteringData[this.clusteringMethod.key];
   }
 
   getCurrentClusteringData(): ClusteringData {

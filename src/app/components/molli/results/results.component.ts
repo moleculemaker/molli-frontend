@@ -5,8 +5,9 @@ import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operator
 
 import { Message, SortEvent } from 'primeng/api';
 
-import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, Structure } from "src/app/models";
+import {ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, LibraryResults, Structure} from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
+import {Job} from "../../../api/mmli-backend/v1";
 
 @Component({
   selector: 'app-results',
@@ -82,11 +83,12 @@ export class ResultsComponent {
     const finalStatus$ = jobId$.pipe(
       filter(jobId => !!jobId),
       switchMap((jobId) => this.backendService.getJobStatus(jobId!)),
-      map((status) => {
-        if (status.status !== 'completed' && status.status !== 'failed') {
-          throw status; // this will trigger polling via the retryWhen
+      map((jobs) => {
+        const firstMatch = jobs.find(() => true);
+        if (firstMatch?.phase !== 'completed' && firstMatch?.phase !== 'error') {
+          throw firstMatch; // this will trigger polling via the retryWhen
         }
-        return status;
+        return firstMatch;
       }),
       retryWhen(errors =>
         errors.pipe(
@@ -98,15 +100,16 @@ export class ResultsComponent {
 
     this.subscriptions.push(
       finalStatus$.pipe(
-        switchMap((status: JobStatus) => {
-          if (status.status === 'failed') {
-            throw status;
+        switchMap((job: Job) => {
+          if (!job || job?.phase === 'error') {
+            throw job;
           }
-          return this.backendService.getJobResult(status.jobId)
+          return this.backendService.getJobResult(job?.job_id!)
         })
       ).subscribe(
         (result) => {
-          this.result = result;
+          const results = JSON.parse(result) as LibraryResults;
+
           // note the default number of clusters is the same regardless of dimensionality reduction technique
           // in fact, the choice of dimensionality reduction technique will only affect the scatterplot coordinates, not
           // any of the other clustering data
@@ -117,11 +120,11 @@ export class ResultsComponent {
           this.allRows = [];
           this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
-          Object.entries(result.results.structures).forEach(([name, structureData]) => {
+          Object.entries(results.structures).forEach(([name, structureData]) => {
             this.allRows.push(generatedStructureToViewModel(name, structureData, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
-          this.isExample = this.backendService.isExampleJob(result.jobId);
+          this.isExample = this.backendService.isExampleJob(this.jobId);
           this.filterTable();
         },
         (error: JobStatus) => {

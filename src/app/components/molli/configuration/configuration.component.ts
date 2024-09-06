@@ -11,6 +11,7 @@ import {TrackingService} from 'src/app/services/tracking.service';
 import {UserInfoService} from "src/app/services/user-info.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {catchError, of} from "rxjs";
+import {FilesService, JobsService} from "../../../api/mmli-backend/v1";
 
 @Component({
   selector: 'app-configuration',
@@ -40,14 +41,18 @@ export class ConfigurationComponent {
   exampleFileArray: any[] = []; //master list of files for example case
   selectedFileToReview: any|null = null;
 
+  jobId = '';
+
   constructor(
     private router: Router,
     private httpClient: HttpClient,
     private backendService: BackendService,
+    private jobsApi: JobsService,
     private hcaptchaService: NgHcaptchaService,
     private trackingService: TrackingService,
     private userInfoService: UserInfoService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private filesApi: FilesService
   ) { }
 
   ngOnInit() {
@@ -99,6 +104,12 @@ export class ConfigurationComponent {
   onUploadedFile(uploadedFile:any, file:any) {
     file.uploadedFile = uploadedFile;
 
+    this.filesApi.uploadFileBucketNameUploadPost('molli', file.uploadedFile, this.jobId).subscribe((resp) => {
+      if (!this.jobId) {
+        this.jobId = resp.jobID;
+      }
+    }, (err) => console.error(err));
+
 //todo: change this to real data
     file.results = [
       {label: 'YYYYY', warning: 'Duplicate Names: All of them will be deleted automatically for better results.'},
@@ -129,33 +140,26 @@ return true;
     // if the user uses example file, return precompiled result
     // else send sequence to backend, jump to results page
     if (this.selectedInputMethod == 'use_example') {
-      this.backendService.getExampleJobPostResponse(ExampleKey.EXAMPLE1)
+      return this.backendService.getExampleJobPostResponse(ExampleKey.EXAMPLE1)
         .subscribe(
           (data) => {
             this.router.navigate(['/results', data.jobId]);
           }
         );
     } else {
-      this.userInfo.pipe(
-        take(1),
-        switchMap((user) => {
-          const data = this.parseUserInput();
-          if (user) {
-            // User is logged in, send token cookie with request
-            return this.backendService.submitJob(data, this.userEmail.trim());
-          } else {
-            // User not logged in, send through hcaptcha
-            return this.hcaptchaService.verify().pipe(
-              switchMap((token) =>
-                this.backendService.submitJob(data, this.userEmail.trim(), token)
-              )
-            );
-          }
-        })
-      ).subscribe({
-        next: (data) => this.router.navigate(['/results', data.jobId]),
-        error: (error) => this.handleJobSubmissionError(error)
-      });
+      const data = this.parseUserInput();
+      console.log(`Submitting MOLLI job:`, data);
+      //this.backendService.submitJob(data.cores, data.subs, this.userEmail.trim(), this.jobId);
+      return this.jobsApi.createJobJobTypeJobsPost('molli', {
+        job_id: this.jobId,
+        run_id: '',   // TODO: support multiple runs?
+        job_info: `{\"CORES_FILE_NAME\":\"${data.cores.name}\",\"SUBS_FILE_NAME\":\"${data.subs.name}\"}`,
+        email: this.userEmail.trim(),
+      }).subscribe(
+        (data) => {
+          this.router.navigate(['/results', this.jobId]);
+        }
+      );
     }
   }
 

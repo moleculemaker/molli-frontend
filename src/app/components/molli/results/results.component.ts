@@ -152,7 +152,7 @@ export class ResultsComponent {
             this.allRows.push(generatedStructureToViewModel(name, structureData as any, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
-          this.isExample = this.backendService.isExampleJob(result.jobId);
+          this.isExample = this.backendService.isExampleJob(this.jobId);
           this.selectedPoints = this.allRows.map(row => row.name);
           this.filteredRows = this.allRows;
         },

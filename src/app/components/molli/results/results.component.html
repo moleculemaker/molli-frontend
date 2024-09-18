@@ -90,7 +90,7 @@
               <i class="pi pi-cog" style="font-size: 16px; cursor: pointer;" (click)="isClusterSettingDialogOpen=true"></i>
             </div>
             <app-cluster-scatterplot 
-              [data]="result.results!.clusteringData[clusteringMethod.key]" 
+              [data]="result.clusteringData[clusteringMethod.key]" 
               [numberOfClusters]="numberOfClusters"
               [structureDetails]="allRows"
               [mode]="$any(clusteringMethod.key)"

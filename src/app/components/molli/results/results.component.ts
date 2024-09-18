@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { timer, Observable, Subscription } from 'rxjs';
 import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operators";
 
 import { Message, SortEvent } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
-import {ClusterAssignmentObject, ClusteringData, JobStatus, LibraryResults, Structure} from "src/app/models";
+import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, SavedMolecule, LibraryResults, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
 import {Job} from "../../../api/mmli-backend/v1";
+import { Table } from 'primeng/table';
+import { UserInfo, UserInfoService } from 'src/app/services/user-info.service';
 
 @Component({
   selector: 'app-results',
   templateUrl: './results.component.html',
-  styleUrls: ['./results.component.scss']
+  styleUrls: ['./results.component.scss'],
+  providers: [MessageService]
 })
 export class ResultsComponent {
   subscriptions: Subscription[] = [];
@@ -31,7 +35,7 @@ export class ResultsComponent {
   filteredRows: GeneratedStructureViewModel[] = [];
 
   clusteringMethodOptions = [
-    { name: 't-SNE', key: 'tsne' },
+    { name: 't-SNE(Default)', key: 'tsne' },
     { name: 'PCA', key: 'pca' }
   ];
   clusteringMethod = this.clusteringMethodOptions[0];
@@ -39,9 +43,9 @@ export class ResultsComponent {
   defaultNumberOfClusters: number;
   numberOfClusters: number;
   maxNumberOfClusters: number;
-  selectedClusters: number[] = []; // note that when filtering, an empty array will be treated as if the user had selected all clusters
 
   allCores: string[] = [];
+  selectedPoints: string[] = [];
   selectedCores: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all cores
   allSubstituents: string[] = [];
   selectedSubstituents: string[] = []; // note that when filtering, an empty array will be treated as if the user had selected all substituents
@@ -49,15 +53,32 @@ export class ResultsComponent {
   isStructureDialogOpen = false;
   structureForDialog: GeneratedStructureViewModel|null;
 
+  isClusterSettingDialogOpen = false;
+
+  highlightedPointName: string|null = null;
+
+  @ViewChild('table') table!: Table;
+  trHeight = 130;
+
   downloadOptions = [
     { label: 'Current View', command: () => this.downloadResult('current') },
     { label: 'Complete Results', command: () => this.downloadResult('complete') }
   ];
 
+  userInfo: UserInfo | undefined;
+  isShowSavedMoleculesOnly = false;
+  savedMolecules: SavedMolecule[] = [];
+  savedMoleculeIds: Set<string> = new Set();
+
   constructor(
     private route: ActivatedRoute,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private userInfoService: UserInfoService,
+    private messageService: MessageService
   ) {
+  }
+
+  ngOnInit(): void {
     this.preComputedMessages = [
       { severity: 'info', detail: 'This is a pre-computed result for the example data. To see real-time computation, click the "Run a new Request" button and use the "Copy and Paste" input method.' },
     ];
@@ -99,6 +120,13 @@ export class ResultsComponent {
     );
 
     this.subscriptions.push(
+      this.backendService.getSavedMolecules(this.jobId).subscribe((result) => {
+        this.savedMolecules = result;
+        this.savedMoleculeIds = new Set(result.map(molecule => molecule.molecule_id));
+      })
+    )
+
+    this.subscriptions.push(
       finalStatus$.pipe(
         switchMap((job: Job) => {
           if (!job || job?.phase === 'error') {
@@ -119,23 +147,26 @@ export class ResultsComponent {
           this.numberOfClusters = this.defaultNumberOfClusters;
           this.maxNumberOfClusters = clusteringData.distortions.length;
           this.allRows = [];
-          this.selectedClusters = [];
           const currentClusterAssignmentObject = this.getCurrentClusterAssignmentObject();
           Object.entries(results.structures).forEach(([name, structureData]) => {
             this.allRows.push(generatedStructureToViewModel(name, structureData as any, currentClusterAssignmentObject));
           });
           this.updateAllCoresAndSubstituentsAndClearSelections();
-          this.isExample = this.backendService.isExampleJob(this.jobId);
-          this.filterTable();
+          this.isExample = this.backendService.isExampleJob(result.jobId);
+          this.selectedPoints = this.allRows.map(row => row.name);
+          this.filteredRows = this.allRows;
         },
         (error: JobStatus) => {
           this.isFailed = true;
         }
       )
     );
-  }
 
-  ngOnInit(): void {
+    this.subscriptions.push(
+      this.userInfoService.userInfo.subscribe(userInfo => {
+        this.userInfo = userInfo;
+      })
+    )
   }
 
   getClusteringDataForMode(mode: ClusteringMode): ClusteringData {
@@ -173,16 +204,15 @@ export class ResultsComponent {
   }
 
   // TODO change form to reactive
-  onFormChanged(field: 'method'|'number'|'selectedClusters'): void {
-    if (field === 'selectedClusters') {
+  onFormChanged(field: 'method'|'number'|'selectedPoints'): void {
+    if (field === 'selectedPoints') {
       this.filterTable();
     } else if (field === 'method') {
-      // currently, changing method only affects the scatterplot coordinates, not cluster assignments, etc.
-      // if that ever changes this, could handle it as we now handle the 'number' case below
-    } else if (field === 'number') {
-      this.selectedClusters = [];
       this.updateClusterAssignments();
-      this.filterTable();
+      this.resetTable();
+    } else if (field === 'number') {
+      this.updateClusterAssignments();
+      this.resetTable();
     } else {
       console.log('Unknown case' + field);
     }
@@ -195,16 +225,105 @@ export class ResultsComponent {
     });
   }
 
-  filterTable() {
-    // create an array to look up cluster status
-    const clusterLookup: boolean[] = [];
-    for (let i = 0; i < this.numberOfClusters; i++) {
-      clusterLookup.push(this.selectedClusters.length === 0 || this.selectedClusters.includes(i));
-    }
-    // create sets to look up cores and substituents
+  resetFilter() {
+    this.selectedCores = [];
+    this.selectedSubstituents = [];
+    this.isShowSavedMoleculesOnly = false;
+    this.filterTable();
+  }
+
+  resetTable() {
+    this.selectedCores = [];
+    this.selectedSubstituents = [];
+    this.isShowSavedMoleculesOnly = false;
+    this.selectedPoints = this.allRows.map(row => row.name);
+    this.filterTable();
+  }
+
+  applyAdditionalFilters(row: GeneratedStructureViewModel) {
+    // create sets to look up cores and substituents    
     const coreLookup = new Set<string>(this.selectedCores.length === 0 ? this.allCores : this.selectedCores);
     const substituentLookup = new Set<string>(this.selectedSubstituents.length === 0 ? this.allSubstituents : this.selectedSubstituents);
-    this.filteredRows = this.allRows.filter(row => clusterLookup[row.cluster] && coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)));
+    const saveMoleculesLookup = (row: GeneratedStructureViewModel) => {
+      if (!this.isShowSavedMoleculesOnly) {
+        return true;
+      }
+      return this.savedMoleculeIds.has(row.name);
+    }
+    return coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)) && saveMoleculesLookup(row);
+  }
+
+  filterTable() {
+    this.filteredRows = this.allRows.filter(row => this.selectedPoints.includes(row.name) && this.applyAdditionalFilters(row));
+  }
+
+  isPointRestrictedByFilters(pointName: string) {
+    const row = this.allRows.find(row => row.name == pointName)!;
+    return !this.applyAdditionalFilters(row);
+  }
+
+  navigateAndScollToRow(name: string, navigate = false) {
+    const index = this.filteredRows.findIndex(row => row.name == name);
+    if (navigate) {
+      this.table.first = Math.floor(index / this.table.rows) * this.table.rows;
+    }
+
+    const scrollRowNum = index - this.table.first;
+    if (scrollRowNum >= 0 && scrollRowNum < this.table.rows) {      
+      this.table.scrollTo({
+        left: 0,
+        top: Math.max(scrollRowNum - 1, 0) * this.trHeight,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  resetClusterSetting() {
+    this.numberOfClusters = this.defaultNumberOfClusters;
+    this.clusteringMethod = this.clusteringMethodOptions[0];
+  }
+
+  get saveMoleculeToolTip() {
+    if (this.isExample && !this.userInfo) {
+      return "Sign In to save this molecule";
+    }
+    return "Save this molecule"
+  }
+
+  saveMolecule(row: GeneratedStructureViewModel) {
+    if (this.isExample && !this.userInfo) {
+      this.userInfoService.login();
+      return;
+    }
+    this.backendService.saveMolecule({
+      jobId: this.jobId,
+      moleculeId: row.name,
+    }).subscribe((res) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+      this.backendService.getSavedMolecules(this.jobId).subscribe((result) => {
+        this.savedMolecules = result;
+        this.savedMoleculeIds = new Set(result.map(molecule => molecule.molecule_id));
+      })
+    }, (error) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+    });
+  }
+
+  unSaveMolecule(row: GeneratedStructureViewModel) {
+    this.backendService.unSaveMolecule({
+     id: this.savedMolecules.find(molecule => molecule.molecule_id == row.name)?.id
+    }).subscribe((result) => {
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: result.message });
+      this.savedMoleculeIds.delete(row.name);
+    }, ({ error }) => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+    });
+  }
+
+  hideMolecule(row: GeneratedStructureViewModel) {
+    const index = this.selectedPoints.findIndex(point => point == row.name);
+    this.selectedPoints = [...this.selectedPoints.slice(0, index), ...this.selectedPoints.slice(index + 1)];
+    this.filterTable();
   }
 
   downloadResult(mode: 'current'|'complete'): void {
@@ -306,21 +425,28 @@ interface Substituent {
   count: number;
 }
 
+function getNamePieces(name: string, separator = '_') {
+  return name.split(separator);
+}
+
 function generatedStructureToViewModel(name: string, structureData: Structure, clusterAssignments: ClusterAssignmentObject): GeneratedStructureViewModel {
-  const separator = '_'; // TODO make configurable and/or change
-  const namePieces = name.split(separator);
-  const core = namePieces.shift()!;
   return {
     name,
-    core,
-    substituents: namePiecesToSubtituentArray(namePieces),
+    core: getCore(name),
+    substituents: getSubtituentArray(name),
     mol2: structureData.mol2,
     svg: structureData.svg,
     cluster: clusterAssignments[name]
   };
 }
 
-function namePiecesToSubtituentArray(namePieces: string[]): Substituent[] {
+export function getCore(name: string) {
+  const namePieces = getNamePieces(name);
+  return namePieces[0];
+}
+
+export function getSubtituentArray(name: string): Substituent[] {
+  const namePieces = getNamePieces(name).slice(1);
   const returnVal: Substituent[] = [];
   const labelToCount = new Map<string, number>();
   namePieces.forEach(label => {

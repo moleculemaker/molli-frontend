@@ -59,3 +59,18 @@ export interface ClusteringData {
   exemplars: string[][];
 }
 
+export interface SavedMolecule {
+  id: number,
+  job_id: string,
+  molecule_id: string
+}
+
+export interface SaveMoleculeRequest {
+  id?: number;
+  jobId?: string,
+  moleculeId?: string
+}
+
+export interface SaveMoleculeResponse {
+  message: string;
+}

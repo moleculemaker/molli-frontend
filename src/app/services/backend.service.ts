@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,7 +9,10 @@ import {
   JobPostRequest,
   JobStatus,
   LibraryResults,
-  JobFileData
+  JobFileData,
+  SaveMoleculeResponse,
+  SaveMoleculeRequest,
+  SavedMolecule
 } from 'src/app/models';
 import { EnvVars } from "src/app/models/envvars";
 import { EnvironmentService } from "./environment.service";
@@ -23,11 +26,14 @@ export class BackendService {
 
   private envs: EnvVars;
 
-  get hostname() {
+  get hostname() {    
     return this.envs?.hostname || 'https://jobmgr.mmli1.ncsa.illinois.edu';
   }
   get apiBasePath() {
     return this.envs?.basePath || 'api/v1';
+  }
+  get mmliHostname() {
+    return this.envs?.mmliHostname || 'https://mmli.fastapi.mmli1.ncsa.illinois.edu'
   }
 
   constructor(private http: HttpClient,
@@ -98,6 +104,31 @@ export class BackendService {
 
   getExampleJobResult(key: ExampleKey): Observable<LibraryResults> {
     return this.http.get<LibraryResults>('assets/' + key + '.json');
+  }
+
+  getSavedMolecules(jobId: string) {
+    const url = `${this.mmliHostname}/molli/saved_molecule?job_id=${jobId}`;
+    return this.http.get<SavedMolecule[]>(url, { withCredentials: true });
+  }
+
+  saveMolecule(data: SaveMoleculeRequest) {
+    const params = {
+      job_id: data.jobId,
+      molecule_id: data.moleculeId
+    };
+    return this.http.post<SaveMoleculeResponse>(`${this.mmliHostname}/molli/saved_molecule`, params, {
+      withCredentials: true 
+    });
+  }
+
+  unSaveMolecule(data: SaveMoleculeRequest) {    
+    return this.http.delete<SaveMoleculeResponse>(`${this.mmliHostname}/molli/saved_molecule`, {
+        headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: data,
+      withCredentials: true
+    });
   }
 
 }

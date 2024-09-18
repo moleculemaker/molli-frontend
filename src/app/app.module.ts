@@ -29,6 +29,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -89,6 +90,7 @@ const initAppFn = (envService: EnvironmentService) => {
     RadioButtonModule,
     TableModule,
     TooltipModule,
+    ToastModule,
     NgxMatomoTrackerModule.forRoot({
       siteId: 4,
       trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'

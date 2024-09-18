@@ -48,14 +48,14 @@ $indexes: (
 
 $padding: 1rem;
 
-$page_width: 920px;
+$page_width: 1180px;
 
 $mobile: 479px;
 $tablet: 767px;
 $desktop: $tablet + 1; //to provide simple shortcut for media queries
 $desktop_large: 1900px;
 
-$app_desired_width: 920px;
+$app_desired_width: 1180px;
 $app_desired_height: 720px;
 $app_min_width: $mobile; //trigger minimum breakpoint
 $app_min_height: $mobile;

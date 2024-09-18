@@ -1,5 +1,6 @@
 {
   "hostname": "https://mmli.fastapi.staging.mmli1.ncsa.illinois.edu",
+  "mmliHostname": "https://mmli.fastapi.staging.mmli1.ncsa.illinois.edu",
   "basePath": "",
 
   "signInUrl": "http://oauth2.proxy.localhost/oauth2/start?rd=http%3A%2F%2Fmolli.frontend.proxy.localhost%2Fconfiguration",

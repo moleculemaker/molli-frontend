@@ -6,9 +6,9 @@ import { delayWhen, filter, map, retryWhen, switchMap, tap } from "rxjs/operator
 import { Message, SortEvent } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 
-import { ClusterAssignmentObject, ClusteringData, JobResult, JobStatus, SavedMolecule, LibraryResults, Structure } from "src/app/models";
+import { ClusterAssignmentObject, ClusteringData, JobStatus, SavedMolecule, LibraryResults, Structure } from "src/app/models";
 import { BackendService } from 'src/app/services/backend.service';
-import {Job} from "../../../api/mmli-backend/v1";
+import { Job } from "../../../api/mmli-backend/v1";
 import { Table } from 'primeng/table';
 import { UserInfo, UserInfoService } from 'src/app/services/user-info.service';
 

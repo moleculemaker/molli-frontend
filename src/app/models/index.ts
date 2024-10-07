@@ -34,14 +34,6 @@ export interface JobStatus {
   created_at: string;
 }
 
-export interface JobResult {
-  jobId: string;
-  url: string;
-  status: string;
-  created_at: string;
-  results: LibraryResults;
-}
-
 export interface Structure {
   mol2: string;
   svg: string;

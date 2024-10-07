@@ -11,7 +11,7 @@
           <!-- TODO replace counts with filenames and rename css classes -->
           <div class="sequence_count">Cores Submitted: {{ allCores.length }}</div>
           <div class="sequence_count">Substituents Submitted: {{ allSubstituents.length }}</div>
-          <div class="sequence_time" *ngIf="result?.created_at">Submission Time: {{ result!.created_at | date:'short' }}</div>
+          <div class="sequence_time" *ngIf="(status$ | async)?.created_at">Submission Time: {{ (status$ | async)?.created_at | date:'short' }}</div>
         </div>
       </div>
 
@@ -90,7 +90,7 @@
               <i class="pi pi-cog" style="font-size: 16px; cursor: pointer;" (click)="isClusterSettingDialogOpen=true"></i>
             </div>
             <app-cluster-scatterplot 
-              [data]="result.results!.clusteringData[clusteringMethod.key]" 
+              [data]="result.clusteringData[clusteringMethod.key]" 
               [numberOfClusters]="numberOfClusters"
               [structureDetails]="allRows"
               [mode]="$any(clusteringMethod.key)"

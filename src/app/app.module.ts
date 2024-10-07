@@ -44,6 +44,7 @@ import { StructureFileUploadComponent} from './components/molli/structure-file-u
 
 import { EnvironmentService } from "./services/environment.service";
 import { BytesPipe } from './pipes/bytes.pipe';
+import {ApiModule, Configuration} from "./api/mmli-backend/v1";
 
 const initAppFn = (envService: EnvironmentService) => {
   return () => envService.loadEnvConfig('/assets/config/envvars.json');
@@ -94,6 +95,7 @@ const initAppFn = (envService: EnvironmentService) => {
       siteId: 4,
       trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'
     }),
+    ApiModule.forRoot(() => new Configuration()),
     NgxMatomoRouterModule,
     NgHcaptchaModule.forRoot({
       siteKey: '0b1663cb-26b9-4e6f-bfa9-352bdd3aeb9f',

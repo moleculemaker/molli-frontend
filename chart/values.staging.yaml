@@ -10,9 +10,9 @@ controller:
   image: moleculemaker/molli-frontend:staging
 
 config:
-  hostname: "https://jobmgr.staging.mmli1.ncsa.illinois.edu"
+  hostname: "https://mmli.fastapi.staging.mmli1.ncsa.illinois.edu"
+  basePath: ""
   mmliHostname: "https://mmli.fastapi.staging.mmli1.ncsa.illinois.edu"
-  basePath: "api/v1"
   signInUrl: "https://mmli1.ncsa.illinois.edu/oauth2/start?rd=https%3A%2F%2Fmolli.frontend.staging.mmli1.ncsa.illinois.edu%2Fconfiguration"
   signOutUrl: "https://mmli1.ncsa.illinois.edu/oauth2/sign_out?rd=https%3A%2F%2Fmolli.frontend.staging.mmli1.ncsa.illinois.edu%2Fconfiguration"
   userInfoUrl: "https://mmli1.ncsa.illinois.edu/oauth2/userinfo"

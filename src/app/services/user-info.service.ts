@@ -12,11 +12,9 @@ export class UserInfoService {
 
   // Cache our currently logged-in user, or undefined if not logged in
   userInfo: Subject<UserInfo | undefined> = new Subject<UserInfo | undefined>();
-  envs: EnvVars;
+  envs: EnvVars = this.envService.getEnvConfig()
 
-  constructor(private http: HttpClient, private envService: EnvironmentService) {
-    this.envs = this.envService.getEnvConfig();
-  }
+  constructor(private http: HttpClient, private envService: EnvironmentService) {  }
 
   /** Fetch userInfo from configured URL */
   fetchUserInfo() {

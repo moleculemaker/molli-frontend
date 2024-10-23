@@ -56,16 +56,16 @@
                 <div class="molecules_panel">
                   <h3>Molecules</h3>
                   <p class="mt-3 mb-1">Cores:</p>
-                  <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable()"
+                  <p-multiSelect [options]="allCores" [(ngModel)]="selectedCores" (onChange)="filterTable(true)"
                                 defaultLabel="Select one or more cores" display="chip" />
                   <p class="mt-3 mb-1">Substituents:</p>
-                  <p-multiSelect [options]="allSubstituents" [(ngModel)]="selectedSubstituents" (onChange)="filterTable()"
+                  <p-multiSelect [options]="allSubstituents" [(ngModel)]="selectedSubstituents" (onChange)="filterTable(true)"
                                 defaultLabel="Select one or more substituents" display="chip" />
                 </div>
                 <div class="other_panel">
                   <h3>Other filters:</h3>
                   <div class="mt-3 mb-4 flex align-items-center">
-                    <p-checkbox value="true" [(ngModel)]="isShowSavedMoleculesOnly" inputId="showSavedMolecules" (onChange)="filterTable()" [binary]="true"/>
+                    <p-checkbox value="true" [(ngModel)]="isShowSavedMoleculesOnly" inputId="showSavedMolecules" (onChange)="filterTable(true)" [binary]="true"/>
                     <label for="showSavedMolecules" class="ml-2">Only show saved results</label>
                   </div>
                 </div>
@@ -76,7 +76,7 @@
               </p-overlayPanel>
               <button pButton icon="pi pi-filter" class="p-button-outlined" (click)="filterPanel.toggle($event)">
                 <span class="p-button-label ml-2">Filter</span>
-                <span class="filter-num ml-2">{{ filteredRows.length }}</span>
+                <span class="filter-num ml-2">{{ filterLenth }}</span>
               </button>
               <button pButton label="Re-set All" class="p-button-outlined" (click)="resetTable()"></button>
             </div>
@@ -131,7 +131,7 @@
                 <td>{{row.cluster}}</td>
                 <td>
                   {{row.name}}
-                  <div class="structure_2d"><app-molecule2d (click)="openStructureDialog(row)" [svg]="row.svg" [height]="100" [width]="100"></app-molecule2d></div>
+                  <div class="structure_2d"><app-molecule2d (click)="openStructureDialog(row)" [svg]="row.svg" [height]="100" [width]="160"></app-molecule2d></div>
                 </td>
                 <td>{{row.core}}</td>
                 <td><div *ngFor="let subst of row.substituents">{{subst.label}} ({{subst.count}})</div></td>

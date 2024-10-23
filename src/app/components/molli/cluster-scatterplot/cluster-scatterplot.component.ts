@@ -30,15 +30,20 @@ export class ClusterScatterplotComponent implements OnChanges {
   mode: 'tsne'|'pca';
 
   highlightedClusterIndex: number|null = null;
+  
   @Input()
   highlightedPointName: string|null = null;
   @Output()
   highlightedPointNameChange = new EventEmitter<string|null>();
 
+  // check if the point/examplar is restricted to select/unselect by additional filters
   @Input()
   checkRestrict: (name: string) => Boolean;
+  
   @Input()
   handleScroll: (name: string, navigate?: boolean) => void;
+
+  lastClickedPointName: string|null = null;
 
   viewBox = {
     height: 400,
@@ -187,7 +192,7 @@ export class ClusterScatterplotComponent implements OnChanges {
   toggleAllCluster() {
     this.allClusterSelected = this.allClusterSelected == 1 ? 0 : 1;
     this.clusters.forEach(cluster => cluster.isSelected = this.allClusterSelected);
-    this.points.forEach(point =>  point.isSelected = !!this.allClusterSelected);
+    this.points.forEach(point => point.isSelected = !!this.allClusterSelected);
     this.onPointsChange();
   }
 
@@ -210,6 +215,17 @@ export class ClusterScatterplotComponent implements OnChanges {
     if (this.checkRestrict(point.name)) {
       return;
     }
+
+    // if it's the first time the point is clicked, just scoll to it
+    if (point.isSelected && this.lastClickedPointName != point.name) {
+      this.lastClickedPointName = point.name;
+      setTimeout(() => {
+        this.handleScroll(point.name, true);
+      });
+      return
+    }
+
+    // not the first time, toggle point
     point.isSelected = !point.isSelected;
     if (point.cluster.isSelected == 2) {
       const selectedPointsCntInCluster = this.getSelectedPointsCntInCluster(point.cluster);

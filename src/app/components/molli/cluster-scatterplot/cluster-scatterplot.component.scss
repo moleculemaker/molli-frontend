@@ -86,7 +86,7 @@ svg {
 
 .filler {
   background-color: #f7f8f9;
-  height: 130px;
+  height: 120px;
 
   .focus_restricted {
     height: 20px;
@@ -102,19 +102,17 @@ svg {
 
   .focus_item {
     width: 408px;
-    height: 130px;
 
     background-color: #ffffff;
     border: 1px solid #dee2e6;
     border-radius: 6px;
 
     .focus_content {
-      padding: 6px 12px 0 12px;
+      padding: 12px;
     }
 
     .focus_point_container {
       width: 247px;
-      height: 79px;
     }
 
     .foucs_info_item {

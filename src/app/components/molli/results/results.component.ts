@@ -33,6 +33,8 @@ export class ResultsComponent {
 
   allRows: GeneratedStructureViewModel[] = [];
   filteredRows: GeneratedStructureViewModel[] = [];
+  // number showed on filter button
+  filterLenth: number = 0;
 
   clusteringMethodOptions = [
     { name: 't-SNE(Default)', key: 'tsne' },
@@ -229,7 +231,7 @@ export class ResultsComponent {
     this.selectedCores = [];
     this.selectedSubstituents = [];
     this.isShowSavedMoleculesOnly = false;
-    this.filterTable();
+    this.filterTable(true);
   }
 
   resetTable() {
@@ -237,7 +239,7 @@ export class ResultsComponent {
     this.selectedSubstituents = [];
     this.isShowSavedMoleculesOnly = false;
     this.selectedPoints = this.allRows.map(row => row.name);
-    this.filterTable();
+    this.filterTable(true);
   }
 
   applyAdditionalFilters(row: GeneratedStructureViewModel) {
@@ -253,8 +255,23 @@ export class ResultsComponent {
     return coreLookup.has(row.core) && row.substituents.some(subst => substituentLookup.has(subst.label)) && saveMoleculesLookup(row);
   }
 
-  filterTable() {
-    this.filteredRows = this.allRows.filter(row => this.selectedPoints.includes(row.name) && this.applyAdditionalFilters(row));
+  filterTable(isApplyAdditionalFilters = false) {
+    let additionalFilterResultLen = 0;
+    this.filteredRows = this.allRows.filter(row => {
+      if (this.applyAdditionalFilters(row)) {
+        if (this.selectedCores.length || this.selectedSubstituents.length) {
+          additionalFilterResultLen++;
+        }
+        if (this.selectedPoints.includes(row.name)) {
+          return true;
+        }
+      }
+      return false;
+    })
+    this.filterLenth = Math.min(additionalFilterResultLen, this.filteredRows.length);
+    if (isApplyAdditionalFilters) {
+      this.table.first = 0;
+    }
   }
 
   isPointRestrictedByFilters(pointName: string) {

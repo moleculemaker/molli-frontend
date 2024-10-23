@@ -261,10 +261,11 @@ tr.highlighted {
 }
 
 td {
-  vertical-align: middle;
-  padding: 7px 16px !important;
+  vertical-align: top;
+  padding: 5px !important;
 
-  &.structure_2d {
+  .structure_2d {
+    margin-top: 6px;
     &:hover {
       cursor: pointer;
 

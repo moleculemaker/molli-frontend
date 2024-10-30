@@ -219,9 +219,7 @@ export class ClusterScatterplotComponent implements OnChanges {
     // if it's the first time the point is clicked, just scoll to it
     if (point.isSelected && this.lastClickedPointName != point.name) {
       this.lastClickedPointName = point.name;
-      setTimeout(() => {
-        this.handleScroll(point.name, true);
-      });
+      this.handleScroll(point.name, true);
       return
     }
 
@@ -243,9 +241,7 @@ export class ClusterScatterplotComponent implements OnChanges {
     }
     this.onPointsChange();
     if (point.isSelected) {
-      setTimeout(() => {
-        this.handleScroll(point.name, true);
-      });
+      this.handleScroll(point.name, true);
     }
   }
 

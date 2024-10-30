@@ -34,7 +34,7 @@ export class ResultsComponent {
   allRows: GeneratedStructureViewModel[] = [];
   filteredRows: GeneratedStructureViewModel[] = [];
   // number showed on filter button
-  filterLenth: number = 0;
+  filterLength: number = 0;
 
   clusteringMethodOptions = [
     { name: 't-SNE(Default)', key: 'tsne' },
@@ -268,7 +268,7 @@ export class ResultsComponent {
       }
       return false;
     })
-    this.filterLenth = Math.min(additionalFilterResultLen, this.filteredRows.length);
+    this.filterLength = Math.min(additionalFilterResultLen, this.filteredRows.length);
     if (isApplyAdditionalFilters) {
       this.table.first = 0;
     }

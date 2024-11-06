@@ -260,11 +260,16 @@ tr.highlighted {
     background-color: #F5F9FF;
 }
 
-td {
-  vertical-align: middle;
-  padding: 7px 16px !important;
+th {
+    padding: 0.8rem !important;
+}
 
-  &.structure_2d {
+td {
+  vertical-align: top;
+  padding: 0.8rem !important;
+  
+  .structure_2d {
+    margin-top: 6px;
     &:hover {
       cursor: pointer;
 

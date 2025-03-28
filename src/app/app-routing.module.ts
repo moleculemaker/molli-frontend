@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: 'configuration', component: ConfigurationComponent },
   { path: 'results', component: ResultsComponent },
   { path: 'results/:jobId', component: ResultsComponent },
-  { path: '', redirectTo: 'configuration', pathMatch: 'full' }
+  { path: '', component: LandingPageComponent }
   // { path: '', component: LandingPageComponent },
 ];
 

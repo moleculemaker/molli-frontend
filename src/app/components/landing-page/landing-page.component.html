@@ -1,20 +1,52 @@
-<div class="page_container">
-    <div class="container">
-        <h1>1 Enter your protein sequence here</h1>
-        <h2>2 Enter your protein sequence here</h2>
-        <h3>3 Enter your protein sequence here</h3>
-        <h4>4 Enter your protein sequence here</h4>
-        <h5>5 Enter your protein sequence here</h5>
-<hr />
-        <h1>1 Enter your protein sequence here</h1>
-        <h3>3 nter your protein sequence here</h3>
+<div class="container">
+    <main>
+        <div class="w-full">
+            <h1>Welcome to Molli!</h1>
+            <h5 class="container-small">
+                Molli (<span class="inline font-semibold">MOL</span>ecular <span class="font-semibold">LI</span>brary) is a
+                chemoinformatics toolkit to manipulate large in silico libraries. 
+                <br/> 
+                Molli can expand three-dimensional, combinatorial molecule libraries directly from two-dimensional
+                chemical structure fragments stored in CDXML files with high stereochemical fidelity. It supports
+                geometry optimization, property calculation, and conformer generation by interfacing with widely used
+                computational chemistry programs such as OpenBabel, RDKit, ORCA, NWChem, and xTB/CREST.
+            </h5>
 
-        <h2>2 Enter your protein sequence here</h2>
-        <h4>4 Enter your protein sequence here</h4>
+            <div class="container-nav">
+                <div class="container-nav-header">
+                    <div>
+                        <h4>Library Documentation</h4>
+                        <h5>Install the cross-platform Molli package to take advantage of its powerful command line interface and Python classes for common molecule manipulations, conformer-dependent grid-based feature calculators, and scalable 3D visualizations.</h5>
+                    </div>
+                    <div>
+                        <a href="https://molli.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">
+                            <button pButton title="Enter Library Documentation" type="button" label="Enter"></button>
+                        </a>
+                    </div>
+                </div>
+                <div class="container-nav-body">
+                    <img src="assets/molli-doc.png" alt="Molli Library Documentation">
+                </div>
+            </div>
 
-        <h3>3 Enter your protein sequence here</h3>
-        <h5>5 Enter your protein sequence here</h5>
+            <div class="container-nav">
+                <div class="container-nav-header">
+                    <div>
+                        <h4>Web Application</h4>
+                        <h5>Use the point-and-click web application to generate an in silico library from a set of bases and substituents you provide. Explore the library with interactive tools and export the data for use in other tools.</h5>
+                    </div>
+                    <div>
+                        <button pButton title="Enter Web Application" type="button" label="Enter" routerLink="/configuration"></button>
+                    </div>
+                </div>
+                <div class="container-nav-body">
+                    <img src="assets/molli-tool.png" alt="Molli Web Application">
+                </div>
+            </div>
+        </div>
+    </main>
 
-        <button pButton type="button" label="Start" routerLink="/clean" style="marginTop:2rem;"></button>
+    <div id="container-molli-workflow" class="flex flex-col justify-center mt-8">
+        
     </div>
 </div>

@@ -42,11 +42,8 @@ main {
             justify-content: space-between;
             margin-bottom: 1rem;
             gap: 1rem;
-            h4 {
-                font-size: 1.5rem;
-                font-weight: bold;
-                text-transform: none;
-            }
+            align-items: flex-start;
+            margin-top: .5rem;
 
             div {
                 display: flex;
@@ -61,6 +58,10 @@ main {
 
             i {
                 font-style: italic;
+            }
+
+            b {
+                font-weight: bold;
             }
         }
 
@@ -83,15 +84,34 @@ main {
         line-height: 1.5;
     }
 
+    h4 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: none;
+        opacity: 1;
+        line-height: 1.5;
+        margin-bottom: .5rem;
+    }
+
     h5 {
         font-size: 1.25rem;
         text-transform: none;
         opacity: 1;
         line-height: 1.5;
+        margin-top: 0;
+        margin-bottom: .5rem;
 
         span {
             font-size: inherit;
         }
+    }
+
+    .font-semibold {
+        font-weight: 600;
+    }
+
+    .font-bold {
+        font-weight: 700;
     }
 }
 

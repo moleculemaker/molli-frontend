@@ -25,6 +25,14 @@ main {
     align-items: center;
     padding: 0rem 1rem;
 
+    .font-semibold {
+        font-weight: 600;
+    }
+
+    .font-bold {
+        font-weight: 700;
+    }
+
     .container-small {
         max-width: 890px;
     }
@@ -54,14 +62,6 @@ main {
 
             button {
                 margin-bottom: 0.5rem;
-            }
-
-            i {
-                font-style: italic;
-            }
-
-            b {
-                font-weight: bold;
             }
         }
 
@@ -106,12 +106,12 @@ main {
         }
     }
 
-    .font-semibold {
-        font-weight: 600;
+    i {
+        font-style: italic;
     }
 
-    .font-bold {
-        font-weight: 700;
+    b {
+        font-weight: bold;
     }
 }
 

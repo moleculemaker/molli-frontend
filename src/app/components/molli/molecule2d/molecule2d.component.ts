@@ -23,15 +23,18 @@ export class Molecule2dComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     let workingSvg = this.svg;
-    if (this.height !== null) {
+    if (this.height != null) {
       // replacing just the first instance of height, and for now we assume all heights are originally 200px
       // TODO improve this logic
       workingSvg = workingSvg.replace('height="200px"', 'height="' + this.height + 'px"');
+      if (this.height < 200) {
+        workingSvg = workingSvg.replace('viewBox="0 0 100 100"', 'viewBox="0 25 100 50"')
+      }
     }
-    if (this.width !== null) {
+    if (this.width != null) {
       // replacing just the first instance of width, and for now we assume all widths are originally 200px
       // TODO improve this logic
-      workingSvg = workingSvg.replace('width="200px"', 'width="' + this.height + 'px"');
+      workingSvg = workingSvg.replace('width="200px"', 'width="' + this.width + 'px"');
     }
     this.scaledSvg = this.sanitizer.bypassSecurityTrustHtml(workingSvg);
   }

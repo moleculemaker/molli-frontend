@@ -2,15 +2,22 @@
   <div class="legend flex-none">
     <div class="flex title">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" (click)="toggleAllCluster()">
-        <path [attr.d]="selectedClusterPath[allClusterSelected].path" [attr.fill]="selectedClusterPath[allClusterSelected].fill"/>
+        <path [attr.d]="selectedClusterPath[+allClusterSelected].path" [attr.fill]="selectedClusterPath[+allClusterSelected].fill"></path>
       </svg>        
       View All
     </div>
     <div *ngFor="let cluster of clusters" class="field-checkbox flex align-content-center justify-content-between" (mouseenter)="highlightCluster(cluster)" (mouseleave)="unhighlight()">
       <div class="flex" (click)="toggleCluster(cluster)">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path [attr.d]="selectedClusterPath[cluster.isSelected].path" [attr.fill]="selectedClusterPath[cluster.isSelected].fill" [style]="{ 'opacity': allClusterSelected == 1 ? '0.2': 1 }"/>
+        <svg *ngIf="getSelectedPointsCntInCluster(cluster) as cnt; else nonSelect" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path *ngIf="allClusterSelected" [attr.d]="selectedClusterPath[0].path" [attr.fill]="selectedClusterPath[0].fill"></path>
+          <path *ngIf="!allClusterSelected && cnt == cluster.pointCount" [attr.d]="selectedClusterPath[1].path" [attr.fill]="selectedClusterPath[1].fill"></path>
+          <path *ngIf="!allClusterSelected && cnt != cluster.pointCount" [attr.d]="selectedClusterPath[2].path" [attr.fill]="selectedClusterPath[2].fill"></path>
         </svg>
+        <ng-template #nonSelect>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="selectedClusterPath[0].path" [attr.fill]="selectedClusterPath[0].fill"></path>
+          </svg>
+        </ng-template>
         <p-avatar [class.faded]="isClusterFaded(cluster)" [style]="{ 'background-color': cluster.color }" shape="circle"></p-avatar>
         <div class="cluster_number">{{ cluster.index }}</div>
       </div>
@@ -56,7 +63,7 @@
             </div>
           </div>
           
-          <app-molecule2d [svg]="point.svg" [height]="100" [width]="100"></app-molecule2d>
+          <app-molecule2d [svg]="point.svg" [width]="125" [height]="75"></app-molecule2d>
         </div>
       </div>
     </div>

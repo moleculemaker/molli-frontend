@@ -1,0 +1,34 @@
+ingress:
+  # early testing
+  hostname: molli.frontend.mmli2.ncsa.illinois.edu
+
+  # MIGRATION: eventually enable prod redirect
+  #hostname: molli.platform.moleculemaker.org
+  #extraHosts:
+  #- molli.frontend.mmli2.ncsa.illinois.edu
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/tls-acme: "true"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
+
+config:
+  hostname: "https://mmli.fastapi.mmli2.ncsa.illinois.edu"
+  basePath: ""
+  mmliHostname: "https://mmli.fastapi.mmli2.ncsa.illinois.edu"
+  signInUrl: "https://auth.platform.moleculemaker.org/oauth2/start?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"
+  signOutUrl: "https://auth.platform.moleculemaker.org/oauth2/sign_out?rd=https%3A%2F%2Fmolli.platform.moleculemaker.org%2Fconfiguration"
+  userInfoUrl: "https://auth.platform.moleculemaker.org/oauth2/userinfo"
+
+extraDeploy:
+- apiVersion: traefik.io/v1alpha1
+  kind: Middleware
+  metadata:
+    name: molli-prod-domain-redirect
+    namespace: alphasynthesis
+  spec:
+    redirectRegex:
+      regex: "^https://molli.frontend.mmli2.ncsa.illinois.edu/(.*)"
+      replacement: "https://molli.platform.moleculemaker.org/${1}"
+      permanent: true

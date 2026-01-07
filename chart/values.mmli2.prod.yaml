@@ -11,7 +11,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-production
     kubernetes.io/tls-acme: "true"
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
+    #traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
 
 config:
   hostname: "https://mmli.fastapi.mmli2.ncsa.illinois.edu"

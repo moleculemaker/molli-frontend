@@ -1,18 +1,13 @@
 ingress:
-  # early testing
-  hostname: molli.frontend.mmli2.ncsa.illinois.edu
-
-  # MIGRATION: eventually enable prod redirect
-  #hostname: molli.platform.moleculemaker.org
-  #extraHosts:
-  #- molli.frontend.mmli2.ncsa.illinois.edu
+  hostname: molli.platform.moleculemaker.org
+  extraHosts:
+  - molli.frontend.mmli2.ncsa.illinois.edu
   tls: true
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
     kubernetes.io/tls-acme: "true"
     traefik.ingress.kubernetes.io/router.tls: "true"
-    # MIGRATION: eventually enable prod redirect
-    #traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
+    traefik.ingress.kubernetes.io/router.middlewares: "alphasynthesis-molli-prod-domain-redirect@kubernetescrd"
 
 config:
   hostname: "https://mmli.fastapi.mmli2.ncsa.illinois.edu"

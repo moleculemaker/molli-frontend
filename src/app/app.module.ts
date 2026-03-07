@@ -93,7 +93,7 @@ const initAppFn = (envService: EnvironmentService) => {
     ToastModule,
     NgxMatomoTrackerModule.forRoot({
       siteId: 4,
-      trackerUrl: 'https://matomo.mmli1.ncsa.illinois.edu/'
+      trackerUrl: 'https://matomo.mmli2.ncsa.illinois.edu/'
     }),
     ApiModule.forRoot(() => new Configuration()),
     NgxMatomoRouterModule,

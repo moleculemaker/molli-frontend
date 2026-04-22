@@ -2,6 +2,7 @@ ingress:
   hostname: molli.platform.moleculemaker.org
   extraHosts:
   - molli.frontend.mmli2.ncsa.illinois.edu
+  - molli.frontend.mmli1.ncsa.illinois.edu
   tls: true
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
@@ -25,6 +26,6 @@ extraDeploy:
     namespace: alphasynthesis
   spec:
     redirectRegex:
-      regex: "^https://molli.frontend.mmli2.ncsa.illinois.edu/(.*)"
+      regex: "^https:\\/\\/molli\\.frontend\\.staging\\.mmli\\d\\.ncsa\\.illinois\\.edu(\\/.*)"
       replacement: "https://molli.platform.moleculemaker.org/${1}"
       permanent: true

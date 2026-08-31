@@ -30,15 +30,20 @@ export class ClusterScatterplotComponent implements OnChanges {
   mode: 'tsne'|'pca';
 
   highlightedClusterIndex: number|null = null;
+  
   @Input()
   highlightedPointName: string|null = null;
   @Output()
   highlightedPointNameChange = new EventEmitter<string|null>();
 
+  // check if the point/examplar is restricted to select/unselect by additional filters
   @Input()
   checkRestrict: (name: string) => Boolean;
+  
   @Input()
   handleScroll: (name: string, navigate?: boolean) => void;
+
+  lastClickedPointName: string|null = null;
 
   viewBox = {
     height: 400,
@@ -65,8 +70,12 @@ export class ClusterScatterplotComponent implements OnChanges {
     "#BB772B", "#AD2828", "#136C34", "#268FB0", "#5C2F88"
   ];
 
+  get allClusterSelected() {
+    const filtered = this.points.filter(point => point.isSelected && !this.checkRestrict(point.name));
+    return filtered.length == this.points.length;
+  };
+
   // 0: unselected, 1: selected, 2: partially selected
-  allClusterSelected = 1;
   selectedClusterPath = [
     {
       path: "M10.6667 1.33333V10.6667H1.33333V1.33333H10.6667ZM10.6667 0H1.33333C0.6 0 0 0.6 0 1.33333V10.6667C0 11.4 0.6 12 1.33333 12H10.6667C11.4 12 12 11.4 12 10.6667V1.33333C12 0.6 11.4 0 10.6667 0",
@@ -99,7 +108,6 @@ export class ClusterScatterplotComponent implements OnChanges {
         // Reset-all
         this.points.forEach(point => point.isSelected = true);
         this.clusters.forEach(cluster => cluster.isSelected = 1);
-        this.allClusterSelected = 1;
       } else {
         // hide in the table
         this.points.forEach(point => point.isSelected = this.selectedPoints.includes(point.name));
@@ -113,7 +121,6 @@ export class ClusterScatterplotComponent implements OnChanges {
             cluster.isSelected = 2;
           }
         })
-        this.onClusterChange();
       }
     }
   }
@@ -164,8 +171,6 @@ export class ClusterScatterplotComponent implements OnChanges {
         const cluster = this.clusters[exemplarNameToClusterIndex.get(exemplar.name)!];
         cluster.exemplar = exemplar;
       });
-
-      this.allClusterSelected = 1;
     }
   }
 
@@ -174,34 +179,24 @@ export class ClusterScatterplotComponent implements OnChanges {
     this.selectedPointsChange.emit(this.selectedPoints);
   }
 
-  onClusterChange() {
-    const seletedClusterNum = this.clusters.filter(cluster => cluster.isSelected === 1).length;
-    if (seletedClusterNum === 0) {
-      this.allClusterSelected = 0;
-    }
-    if (seletedClusterNum === this.numberOfClusters) {
-      this.allClusterSelected = 1;
-    }
-  }
-
   toggleAllCluster() {
-    this.allClusterSelected = this.allClusterSelected == 1 ? 0 : 1;
-    this.clusters.forEach(cluster => cluster.isSelected = this.allClusterSelected);
-    this.points.forEach(point =>  point.isSelected = !!this.allClusterSelected);
+    let selected = this.allClusterSelected;
+    this.clusters.forEach(cluster => cluster.isSelected = selected ? 0 : 1);
+    this.points.forEach(point => point.isSelected = !selected);
     this.onPointsChange();
   }
 
   toggleCluster(cluster: Cluster): void {
-    cluster.isSelected = cluster.isSelected == 1 ? 0 : 1;
-    this.points.forEach(point => {
-      if (point.cluster.index === cluster.index) {
-        point.isSelected = !!cluster.isSelected;
-      }
-    })
-    if (this.allClusterSelected == 2) {
-      this.onClusterChange();
+    if (this.allClusterSelected) {
+      // when under view all, only current cluster is toggled on
+      this.points.forEach(point => point.isSelected = point.cluster.index === cluster.index)
     } else {
-      this.allClusterSelected = 2;
+      cluster.isSelected = cluster.isSelected == 1 ? 0 : 1;
+      this.points.forEach(point => {
+        if (point.cluster.index === cluster.index) {
+          point.isSelected = !!cluster.isSelected;
+        }
+      })
     }
     this.onPointsChange();
   }
@@ -210,31 +205,35 @@ export class ClusterScatterplotComponent implements OnChanges {
     if (this.checkRestrict(point.name)) {
       return;
     }
+
+    // if it's the first time the point is clicked, just scoll to it
+    if (point.isSelected && this.lastClickedPointName != point.name) {
+      this.lastClickedPointName = point.name;
+      this.handleScroll(point.name, true);
+      return
+    }
+
+    // not the first time, toggle point
     point.isSelected = !point.isSelected;
     if (point.cluster.isSelected == 2) {
       const selectedPointsCntInCluster = this.getSelectedPointsCntInCluster(point.cluster);
       if (selectedPointsCntInCluster == 0) {
         point.cluster.isSelected = 0;
-        this.onClusterChange();
       }
       if (selectedPointsCntInCluster == point.cluster.pointCount) {
         point.cluster.isSelected = 1;
-        this.onClusterChange();
       }
     } else {
       point.cluster.isSelected = 2;
-      this.allClusterSelected = 2;
     }
     this.onPointsChange();
     if (point.isSelected) {
-      setTimeout(() => {
-        this.handleScroll(point.name, true);
-      });
+      this.handleScroll(point.name, true);
     }
   }
 
   getSelectedPointsCntInCluster(cluster: Cluster) {
-    return this.points.filter(point => point.cluster.index === cluster.index && point.isSelected).length;
+    return this.points.filter(point => point.cluster.index === cluster.index && point.isSelected && !this.checkRestrict(point.name)).length;
   }
 
   highlightCluster(cluster: Cluster): void {    

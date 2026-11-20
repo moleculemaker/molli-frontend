@@ -9,3 +9,4 @@ Dockerfile
 # frontend dependencies + build output
 dist/
 node_modules/
+.claude/

@@ -43,3 +43,5 @@ Thumbs.db
 
 # Docker compose envvars
 .env
+# Claude Code worktrees
+.claude/worktrees/
